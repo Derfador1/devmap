@@ -20,122 +20,75 @@ struct ipv4 *make_ip(void) //used to initialize meditrik structure when invoked
 	return ipv4;
 }
 
-int main(int argc, char * argv[])
+int start(int argc, char * argv[])
 {
 	size_t file_count = 1;
 	int descrip = 0;
 
-	while(file_count < (size_t)argc) {
-		printf("\n");
-		if (argc == 1)
+	//while(file_count < (size_t)argc) {
+	printf("\n");
+	if (argc == 1)
+	{
+		printf("Please retry with a valid file to open.\n");
+		exit(1);
+	}
+	else if (argc >= 2)
+	{
+		descrip = open(argv[file_count], O_RDONLY); //gives an integer if open works successfully 
+		if (descrip == -1)
 		{
-			printf("Please retry with a valid file to open.\n");
+			fprintf(stderr, "Error could not open file\n");
 			exit(1);
 		}
-		else if (argc >= 2)
+		else
 		{
-			descrip = open(argv[file_count], O_RDONLY); //gives an integer if open works successfully 
-			if (descrip == -1)
-			{
-				fprintf(stderr, "Error could not open file\n");
-				exit(1);
-			}
-			else
-			{
-				//printf("You successfully opened %s\n", argv[1]);
-			}
+			//printf("You successfully opened %s\n", argv[1]);
 		}
+	}
 
 
-		int global_header = 24;
-		int packet = 16;
-		int ethernet = 14;
-		int ipv4 = 20;
-		int ipv6 = 40;
-		int udp = 8;
+	int global_header = 24;
+	int packet = 16;
+	int ethernet = 14;
+	int ipv4 = 20;
+	int ipv6 = 40;
+	int udp = 8;
 
-		int count = 0;
-		int excess_headers = 0;
-		int udp_start = 0;
+	int count = 0;
+	int excess_headers = 0;
+	int udp_start = 0;
 
-		int ipv_start = global_header + packet + ethernet;
+	int ipv_start = global_header + packet + ethernet;
 
-		unsigned int *type_pt = malloc(sizeof(*type_pt));
+	unsigned int *type_pt = malloc(sizeof(*type_pt));
 
-		unsigned int *total_length = malloc(sizeof(*total_length));
+	unsigned int *total_length = malloc(sizeof(*total_length));
 
-		int *start = malloc(sizeof(*start));
+	int *start = malloc(sizeof(*start));
 
-		unsigned char *buf = malloc(SIZE);
+	unsigned char *buf = malloc(SIZE);
 
-		memset(buf, '\0', SIZE);
+	memset(buf, '\0', SIZE);
 
-		count = read(descrip, buf, SIZE); //sets count to integer value returned by read, which is number of things read
-	
-		struct meditrik *stuff = make_meditrik(); //make meditrik to malloc space
+	count = read(descrip, buf, SIZE); //sets count to integer value returned by read, which is number of things read
 
-		struct ipv4 *ver = make_ip();
+	struct meditrik *stuff = make_meditrik(); //make meditrik to malloc space
 
-		int verse = extract_ver(ver, ipv_start, buf);
-	
-		if(verse == 4 ) {
-			excess_headers = packet + ethernet + ipv4 + udp;
-			udp_start = global_header + packet + ethernet + ipv4;
-		}
-		else {
-			excess_headers = packet + ethernet + ipv6 + udp;
-			udp_start = global_header + packet + ethernet + ipv6;
-		}
+	struct ipv4 *ver = make_ip();
 
-		if(!udp_check(udp_start, buf)) { //change to 57005
-			printf("This is a malformed packet\n");
-			free(buf);
-			free(stuff);
-			free(ver);
-			free(type_pt);
-			free(total_length);
-			free(start);
-			close(descrip);
-			exit(1);
-		}
-	
-		FILE *write;
-		write = fopen("decoded.txt", "w");
+	int verse = extract_ver(ver, ipv_start, buf);
 
-		if(write == NULL) //checks to see if fopen worked correctly
-		{
-			fprintf(stderr, "Error opening file\n");
-			exit(1);
-		}
+	if(verse == 4 ) {
+		excess_headers = packet + ethernet + ipv4 + udp;
+		udp_start = global_header + packet + ethernet + ipv4;
+	}
+	else {
+		excess_headers = packet + ethernet + ipv6 + udp;
+		udp_start = global_header + packet + ethernet + ipv6;
+	}
 
-		//function
-		*start = global_header + excess_headers; //gives the inital start position in buffer
-
-		while(*start < count) //loops until no more bytes in buffer
-		{
-			bit_seperation(stuff, buf, type_pt, total_length, start);
-
-			/*
-			if(*type_pt != 2) {
-				//printf("um\n");
-				break;
-			}
-			*/
-
-			fprintf(stdout, "Version: %d\n", stuff->version);
-			fprintf(stdout, "Sequence: %d\n", stuff->seq_id);
-			fprintf(stdout, "Type: %d\n", stuff->type);
-			fprintf(stdout, "Source Device: %d\n", stuff->source_device_id);
-			fprintf(stdout, "Destination Device: %d\n", stuff->dest_device_id);
-
-			if (field_check(type_pt, buf, start, total_length) != 1)
-			{
-				fprintf(stderr, "Error has occured in field checking\n");
-				break;
-			}
-		}
-		//
-
+	if(!udp_check(udp_start, buf)) { //change to 57005
+		printf("This is a malformed packet\n");
 		free(buf);
 		free(stuff);
 		free(ver);
@@ -143,10 +96,58 @@ int main(int argc, char * argv[])
 		free(total_length);
 		free(start);
 		close(descrip);
-		fclose(write);
-
-		file_count++;
+		exit(1);
 	}
+
+	FILE *write;
+	write = fopen("decoded.txt", "w");
+
+	if(write == NULL) //checks to see if fopen worked correctly
+	{
+		fprintf(stderr, "Error opening file\n");
+		exit(1);
+	}
+
+	//function
+	*start = global_header + excess_headers; //gives the inital start position in buffer
+
+	while(*start < count) //loops until no more bytes in buffer
+	{
+		bit_seperation(stuff, buf, type_pt, total_length, start);
+
+		/*
+		if(*type_pt != 2) {
+			//printf("um\n");
+			continue;
+		}
+		*/
+
+		fprintf(stdout, "Version: %d\n", stuff->version);
+		fprintf(stdout, "Sequence: %d\n", stuff->seq_id);
+		fprintf(stdout, "Type: %d\n", stuff->type);
+		fprintf(stdout, "Source Device: %d\n", stuff->source_device_id);
+		fprintf(stdout, "Destination Device: %d\n", stuff->dest_device_id);
+
+		if (field_check(type_pt, buf, start, total_length) != 1)
+		{
+			fprintf(stderr, "Error has occured in field checking\n");
+			break;
+		}
+	}
+	//
+
+	free(buf);
+	free(stuff);
+	free(ver);
+	free(type_pt);
+	free(total_length);
+	free(start);
+	close(descrip);
+	fclose(write);
+
+		//file_count++;
+
+	return 1;
 }
 
 int extract_ver(struct ipv4 *ver, int ipv_start, unsigned char *buf)
