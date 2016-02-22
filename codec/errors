@@ -1,3 +1,0 @@
-There is an error with valgrind when I exit from the functions when im encoding.
-Its a syscall param write(buf),  Liam told me it had to do with when I wrote using fwrite about something being unitialized but
-I could not get it to stop complaining and I tried initializing my values.  

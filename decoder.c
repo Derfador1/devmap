@@ -117,8 +117,6 @@ int message_decode(int *start, unsigned char *buf, unsigned int *total_length, i
 
 int main(int argc, char * argv[])
 {
-	int descrip = open(argv[1], O_RDONLY); //gives an integer if open works successfully 
-
 	if (argc == 1)
 	{
 		printf("Please retry with a valid file to open.\n");
@@ -126,7 +124,7 @@ int main(int argc, char * argv[])
 	}
 	else if (argc >= 2)
 	{
-
+		int descrip = open(argv[1], O_RDONLY); //gives an integer if open works successfully 
 		if (descrip == -1)
 		{
 			fprintf(stderr, "Error could not open file\n");
