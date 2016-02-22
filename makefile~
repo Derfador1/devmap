@@ -13,7 +13,7 @@ profile:devmap
 .PHONY: clean debug profile
 
 clean:
-	rm devmap *.o
+	rm devmap decoder *.o
 
 debug: CFLAGS+=-g
 debug: devmap
