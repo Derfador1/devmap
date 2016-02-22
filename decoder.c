@@ -194,15 +194,15 @@ int main(int argc, char * argv[])
 	
 	if(verse == 4 ) {
 		excess_headers = packet + ethernet + ipv4 + udp;
-		udp_start = packet + ethernet + ipv4;
+		udp_start = global_header + packet + ethernet + ipv4;
 	}
 	else {
 		excess_headers = packet + ethernet + ipv6 + udp;
-		udp_start = packet + ethernet + ipv6;
+		udp_start = global_header + packet + ethernet + ipv6;
 	}
 
 
-	if(udp_check(udp_start, buf) != 23020) { //change to 57005
+	if(!udp_check(udp_start, buf)) { //change to 57005
 		printf("This is a malformed packet\n");
 		free(buf);
 		free(stuff);
@@ -221,14 +221,20 @@ int main(int argc, char * argv[])
 	if(write == NULL) //checks to see if fopen worked correctly
 	{
 		fprintf(stderr, "Error opening file\n");
+		//fclose(write);
 		exit(1);
 	}
 
+	//function
 	*start = global_header + excess_headers; //gives the inital start position in buffer
 
 	while(*start < count) //loops until no more bytes in buffer
 	{
 		bit_seperation(stuff, buf, type_pt, total_length, start);
+
+		if(*type_pt != 2) {
+			printf("um\n");
+		}
 
 		if (field_check(type_pt, buf, start, total_length) != 1)
 		{
@@ -236,6 +242,7 @@ int main(int argc, char * argv[])
 			break;
 		}
 	}
+	//
 
 	free(buf);
 	free(stuff);
@@ -260,7 +267,7 @@ int udp_check(int udp_start, unsigned char *buf)
 	unsigned int port_start = buf[udp_start];
 	port_start <<= 8;
 	port_start += buf[++udp_start];
-	printf("%d\n", port_start);
+	printf("%d\n", port_start); //remove this later
 	return port_start;
 }
 
