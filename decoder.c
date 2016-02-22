@@ -361,9 +361,9 @@ int command_decode(int *start, unsigned char * buf, int excess_headers)
 	fprintf(stdout, "Command: %d\n", byte_start);
 
 	//checks to see if what field goes with the command field
-	if (byte_start == 0)
+	if ((byte_start % 2) == 0)
 	{
-		
+		//nothing happens
 	}
 	else if (byte_start == 1)
 	{
@@ -372,10 +372,6 @@ int command_decode(int *start, unsigned char * buf, int excess_headers)
 		glucose += buf[++(*start)];
 		fprintf(stdout, "Glucose: %d\n", glucose);
 	}
-	else if (byte_start == 2)
-	{
-		
-	}
 	else if (byte_start == 3)
 	{
 		unsigned int capsaicin = buf[*start]; //used to find capsaicin
@@ -383,20 +379,12 @@ int command_decode(int *start, unsigned char * buf, int excess_headers)
 		capsaicin += buf[++(*start)];
 		fprintf(stdout, "Capsaicin: %d\n", capsaicin);
 	}
-	else if (byte_start == 4)
-	{
-		
-	}
 	else if (byte_start == 5)
 	{
 		unsigned int omorfine = buf[*start];//used to fine omorfine
 		omorfine <<= 8;
 		omorfine += buf[++(*start)];
 		fprintf(stdout, "Omorfine: %d\n", omorfine);
-	}
-	else if (byte_start == 6)
-	{
-		
 	}
 	else if (byte_start == 7)
 	{	
