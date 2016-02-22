@@ -43,6 +43,17 @@ struct ethernet{
 	unsigned int length : 16;
 };
 
+struct ipv6{
+	unsigned int version : 4;
+	unsigned int traffic_class : 8;
+	unsigned int flow_label : 20;
+	unsigned int payload : 16;
+	unsigned int next_header : 8;
+	unsigned int hop_limit : 8;
+	//128 source 
+	//128 dest
+};
+
 struct ipv4{
 	unsigned int version : 4;
 	unsigned int h_length : 4;
@@ -86,6 +97,16 @@ struct meditrik *make_meditrik(void) //used to initialize meditrik structure whe
 	return meditrik;
 }
 
+struct ipv4 *make_ip(void) //used to initialize meditrik structure when invoked
+{
+	struct ipv4 *ipv4 = malloc(sizeof(struct ipv4));
+	if(!ipv4) { //makes sure there is something to malloc
+		return NULL;
+	}
+
+	return ipv4;
+}
+
 struct gps {
 	double longs;
 	double lat;
@@ -114,6 +135,9 @@ int gps_decode(int *start, unsigned char *buf, int counter, int excess_headers);
 
 int message_decode(int *start, unsigned char *buf, unsigned int *total_length, int excess_headers);
 
+int extract_ver(struct ipv4 *ver, int excess_headers, unsigned char *buf);
+
+int udp_check(int udp_start, unsigned char *buf);
 
 int main(int argc, char * argv[])
 {
@@ -137,11 +161,18 @@ int main(int argc, char * argv[])
 		}
 	}
 
-	int count = 0;
-
-	int excess_headers = 58;
-
 	int global_header = 24;
+	int packet = 16;
+	int ethernet = 14;
+	int ipv4 = 20;
+	int ipv6 = 40;
+	int udp = 8;
+
+	int count = 0;
+	int excess_headers = 0;
+	int udp_start = 0;
+
+	int ipv_start = global_header + packet + ethernet;
 
 	unsigned int *type_pt = malloc(sizeof(*type_pt));
 
@@ -156,6 +187,34 @@ int main(int argc, char * argv[])
 	count = read(descrip, buf, SIZE); //sets count to integer value returned by read, which is number of things read
 	
 	struct meditrik *stuff = make_meditrik(); //make meditrik to malloc space
+
+	struct ipv4 *ver = make_ip();
+
+	int verse = extract_ver(ver, ipv_start, buf);
+	
+	if(verse == 4 ) {
+		excess_headers = packet + ethernet + ipv4 + udp;
+		udp_start = packet + ethernet + ipv4;
+	}
+	else {
+		excess_headers = packet + ethernet + ipv6 + udp;
+		udp_start = packet + ethernet + ipv6;
+	}
+
+	/*
+	if(udp_check(udp_start, buf) != 23020) { //change to 57005
+		printf("This is a malformed packet\n");
+		free(buf);
+		free(stuff);
+		free(ver);
+		free(type_pt);
+		free(total_length);
+		free(start);
+		close(descrip);
+		exit(1);
+	}
+	*/
+
 	
 	FILE *write;
 	write = fopen("decoded.txt", "w");
@@ -178,21 +237,32 @@ int main(int argc, char * argv[])
 			break;
 		}
 	}
+
 	free(buf);
-
 	free(stuff);
-	
+	free(ver);
 	free(type_pt);
-
 	free(total_length);
-
 	free(start);
-
-	
-
 	close(descrip);
-
 	fclose(write);
+}
+
+int extract_ver(struct ipv4 *ver, int ipv_start, unsigned char *buf)
+{
+	unsigned int vers = buf[ipv_start];
+	vers >>= 4;
+	ver->version = vers;
+	return ver->version;
+}
+
+int udp_check(int udp_start, unsigned char *buf)
+{
+	unsigned int port_start = buf[udp_start];
+	port_start <<= 8;
+	port_start += buf[++udp_start];
+	printf("%d\n", port_start);
+	return port_start;
 }
 
 int bit_seperation(struct meditrik *medi, unsigned char *buf, unsigned int *type_pt, unsigned int *total_length, int *start)
