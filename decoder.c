@@ -201,7 +201,7 @@ int main(int argc, char * argv[])
 		udp_start = packet + ethernet + ipv6;
 	}
 
-	/*
+
 	if(udp_check(udp_start, buf) != 23020) { //change to 57005
 		printf("This is a malformed packet\n");
 		free(buf);
@@ -213,7 +213,6 @@ int main(int argc, char * argv[])
 		close(descrip);
 		exit(1);
 	}
-	*/
 
 	
 	FILE *write;
