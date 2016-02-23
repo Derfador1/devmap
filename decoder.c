@@ -384,7 +384,7 @@ int gps_decode(int *start, unsigned char *buf, int counter, int excess_headers)
 
 	fprintf(stdout, "Latitude: %.9f degree N\n", gps.fields.lat);	//in buffer and moves down based on types of the three
 
-	fprintf(stdout, "Altitude: %.0f ft\n", gps.fields.alt * 6);
+	fprintf(stdout, "Altitude: %f ft\n", gps.fields.alt * 6);
 	
 	(*start)++;
 
