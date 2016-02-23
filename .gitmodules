@@ -1,0 +1,3 @@
+[submodule "datastructures"]
+	path = datastructures
+	url = git@github.com:Derfador1/datastructures.git

@@ -3,6 +3,7 @@
 #include <ctype.h>
 #include "decoder.h"
 
+
 #define PI 3.14159265
 #define EARTH_RAD 6356.752
 
