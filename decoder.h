@@ -114,9 +114,9 @@ int gps_decode(int *start, unsigned char *buf, int counter, int excess_headers);
 
 int message_decode(int *start, unsigned char *buf, unsigned int *total_length, int excess_headers);
 
-int extract_ver(struct ipv4 *ver, int excess_headers, unsigned char *buf);
+int extract_ver(struct ipv4 *ver, int *start, unsigned char *buf);
 
-int udp_check(int udp_start, unsigned char *buf);
+int udp_check(int *start, unsigned char *buf);
 
 int start(int argc, char * argv[]);
 
