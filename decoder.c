@@ -55,10 +55,10 @@ int start(int argc, char * argv[])
 	int udp = 8;
 
 	int count = 0;
-	int excess_headers = 0;
-	int udp_start = 0;
+	//int excess_headers = 0;
+	//int udp_start = 0;
 
-	int ipv_start = global_header + packet + ethernet;
+	//int ipv_start = global_header + packet + ethernet;
 
 	unsigned int *type_pt = malloc(sizeof(*type_pt));
 
@@ -76,43 +76,71 @@ int start(int argc, char * argv[])
 
 	struct ipv4 *ver = make_ip();
 
-	int verse = extract_ver(ver, ipv_start, buf);
+	*start = 0;
 
-	if(verse == 4 ) {
-		excess_headers = packet + ethernet + ipv4 + udp;
-		udp_start = global_header + packet + ethernet + ipv4;
-	}
-	else {
-		excess_headers = packet + ethernet + ipv6 + udp;
-		udp_start = global_header + packet + ethernet + ipv6;
-	}
+	int verse = 4;
 
-	if(!udp_check(udp_start, buf)) { //change to 57005
-		printf("This is a malformed packet\n");
-		free(buf);
-		free(stuff);
-		free(ver);
-		free(type_pt);
-		free(total_length);
-		free(start);
-		close(descrip);
-		exit(1);
-	}
+	int src_port = 0;
 
-	FILE *write;
-	write = fopen("decoded.txt", "w");
+	int counter = 0;
 
-	if(write == NULL) //checks to see if fopen worked correctly
-	{
-		fprintf(stderr, "Error opening file\n");
-		exit(1);
-	}
+	while(*start < count) {
 
-	//function
-	*start = global_header + excess_headers; //gives the inital start position in buffer
+		if(counter == 0) {
+			*start = global_header + packet + ethernet;
+		}
+		else {
+			*start = *start + packet + ethernet;
+		}
 
-	while(*start < count) //loops until no more bytes in buffer
-	{
+		printf("Start currently : %d\n", *start);
+
+		//printf("Start currently : %d\n", *start);
+		
+		verse = extract_ver(ver, start, buf);
+
+		printf("Ip verision: %d\n", verse);
+
+		if(verse == 4 ) {
+			//excess_headers = packet + ethernet + ipv4 + udp;
+			//udp_start = global_header + packet + ethernet + ipv4;
+			*start += ipv4;
+		}
+		else {
+			//excess_headers = packet + ethernet + ipv6 + udp;
+			//udp_start = global_header + packet + ethernet + ipv6;
+			*start += ipv6;
+		}
+
+		//printf("Start currently : %d\n", *start);
+
+		/*
+		if(!udp_check(udp_start, buf)) { //change to 57005
+			printf("This is a malformed packet\n");
+			free(buf);
+			free(stuff);
+			free(ver);
+			free(type_pt);
+			free(total_length);
+			free(start);
+			close(descrip);
+			exit(1);
+		}
+		*/
+
+		src_port = udp_check(start, buf);
+
+		printf("SRC Port: %d\n", src_port);
+
+		*start += udp;
+
+		//printf("Start currently : %d\n", *start);
+
+		//function
+		//*start = global_header + excess_headers; //gives the inital start position in buffer
+
+		//while(*start < count) //loops until no more bytes in buffer
+		//{
 		bit_seperation(stuff, buf, type_pt, total_length, start);
 
 		/*
@@ -133,7 +161,12 @@ int start(int argc, char * argv[])
 			fprintf(stderr, "Error has occured in field checking\n");
 			break;
 		}
+		printf("Start currently : %d\n", *start);
+		(*start)++;
+		counter++;
+
 	}
+	//}
 	//
 
 	free(buf);
@@ -143,33 +176,39 @@ int start(int argc, char * argv[])
 	free(total_length);
 	free(start);
 	close(descrip);
-	fclose(write);
+	//fclose(write);
 
 		//file_count++;
 
 	return 1;
 }
 
-int extract_ver(struct ipv4 *ver, int ipv_start, unsigned char *buf)
+int extract_ver(struct ipv4 *ver, int *start, unsigned char *buf)
 {
-	unsigned int vers = buf[ipv_start];
+	//int ipv_start = *start;
+	unsigned int vers = buf[*start];
 	vers >>= 4;
 	ver->version = vers;
+	//printf("ver : %d\n", vers);
+	//(*start)--;
 	return ver->version;
 }
 
-int udp_check(int udp_start, unsigned char *buf)
+int udp_check(int *start, unsigned char *buf)
 {
-	unsigned int port_start = buf[udp_start];
+	unsigned int port_start = buf[*start];
 	port_start <<= 8;
-	port_start += buf[++udp_start];
-	//printf("%d\n", port_start); //remove this later
+	port_start += buf[++(*start)];
+	//printf("port : %d\n", port_start); //remove this later
+	(*start)--;
 	return port_start;
 }
 
 int bit_seperation(struct meditrik *medi, unsigned char *buf, unsigned int *type_pt, unsigned int *total_length, int *start)
 {
 	//version bitmath
+
+	printf("at thing %d\n", buf[*start]);
 	unsigned int byte_start = buf[*start]; //used to increment position in buffer
 	byte_start >>= 4;
 	medi->version = byte_start;
