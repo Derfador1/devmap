@@ -25,7 +25,6 @@ int start(int argc, char * argv[])
 	size_t file_count = 1;
 	int descrip = 0;
 
-	//while(file_count < (size_t)argc) {
 	printf("\n");
 	if (argc == 1)
 	{
@@ -55,10 +54,6 @@ int start(int argc, char * argv[])
 	int udp = 8;
 
 	int count = 0;
-	//int excess_headers = 0;
-	//int udp_start = 0;
-
-	//int ipv_start = global_header + packet + ethernet;
 
 	unsigned int *type_pt = malloc(sizeof(*type_pt));
 
@@ -151,12 +146,9 @@ int start(int argc, char * argv[])
 
 int extract_ver(struct ipv4 *ver, int *start, unsigned char *buf)
 {
-	//int ipv_start = *start;
 	unsigned int vers = buf[*start];
 	vers >>= 4;
 	ver->version = vers;
-	//printf("ver : %d\n", vers);
-	//(*start)--;
 	return ver->version;
 }
 
@@ -165,7 +157,6 @@ int udp_check(int *start, unsigned char *buf)
 	unsigned int port_start = buf[*start];
 	port_start <<= 8;
 	port_start += buf[++(*start)];
-	//printf("port : %d\n", port_start); //remove this later
 	(*start)--;
 	return port_start;
 }
