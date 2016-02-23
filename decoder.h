@@ -102,6 +102,7 @@ union gps_header{
 	unsigned char degrees[20];
 };
 
+
 int bit_seperation(struct meditrik *medi, unsigned char *buf, unsigned int *type_pt, unsigned int *total_length, int *start);
 
 int field_check(unsigned int *type_pt, unsigned char *buf, int *start, unsigned int *total_length);
