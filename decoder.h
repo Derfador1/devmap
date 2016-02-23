@@ -118,4 +118,6 @@ int extract_ver(struct ipv4 *ver, int excess_headers, unsigned char *buf);
 
 int udp_check(int udp_start, unsigned char *buf);
 
+int start(int argc, char * argv[]);
+
 #endif
