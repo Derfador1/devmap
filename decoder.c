@@ -66,6 +66,10 @@ int start(int argc, char * argv[])
 
 	int *start = malloc(sizeof(*start));
 
+	int verse = 0;
+
+	int src_port = 0;
+
 	unsigned char *buf = malloc(SIZE);
 
 	memset(buf, '\0', SIZE);
@@ -76,43 +80,21 @@ int start(int argc, char * argv[])
 
 	struct ipv4 *ver = make_ip();
 
-	*start = 0;
-
-	int verse = 4;
-
-	int src_port = 0;
-
-	int counter = 0;
+	*start = global_header;
 
 	while(*start < count) {
-
-		if(counter == 0) {
-			*start = global_header + packet + ethernet;
-		}
-		else {
-			*start = *start + packet + ethernet;
-		}
-
-		printf("Start currently : %d\n", *start);
-
-		//printf("Start currently : %d\n", *start);
+		*start += packet + ethernet;
 		
 		verse = extract_ver(ver, start, buf);
 
 		printf("Ip verision: %d\n", verse);
 
 		if(verse == 4 ) {
-			//excess_headers = packet + ethernet + ipv4 + udp;
-			//udp_start = global_header + packet + ethernet + ipv4;
 			*start += ipv4;
 		}
 		else {
-			//excess_headers = packet + ethernet + ipv6 + udp;
-			//udp_start = global_header + packet + ethernet + ipv6;
 			*start += ipv6;
 		}
-
-		//printf("Start currently : %d\n", *start);
 
 		/*
 		if(!udp_check(udp_start, buf)) { //change to 57005
@@ -134,13 +116,6 @@ int start(int argc, char * argv[])
 
 		*start += udp;
 
-		//printf("Start currently : %d\n", *start);
-
-		//function
-		//*start = global_header + excess_headers; //gives the inital start position in buffer
-
-		//while(*start < count) //loops until no more bytes in buffer
-		//{
 		bit_seperation(stuff, buf, type_pt, total_length, start);
 
 		/*
@@ -161,13 +136,7 @@ int start(int argc, char * argv[])
 			fprintf(stderr, "Error has occured in field checking\n");
 			break;
 		}
-		printf("Start currently : %d\n", *start);
-		(*start)++;
-		counter++;
-
 	}
-	//}
-	//
 
 	free(buf);
 	free(stuff);
@@ -176,9 +145,6 @@ int start(int argc, char * argv[])
 	free(total_length);
 	free(start);
 	close(descrip);
-	//fclose(write);
-
-		//file_count++;
 
 	return 1;
 }
@@ -207,8 +173,6 @@ int udp_check(int *start, unsigned char *buf)
 int bit_seperation(struct meditrik *medi, unsigned char *buf, unsigned int *type_pt, unsigned int *total_length, int *start)
 {
 	//version bitmath
-
-	printf("at thing %d\n", buf[*start]);
 	unsigned int byte_start = buf[*start]; //used to increment position in buffer
 	byte_start >>= 4;
 	medi->version = byte_start;
@@ -265,7 +229,7 @@ int field_check(unsigned int *type_pt, unsigned char *buf, int *start, unsigned 
 {
 	short counter = 0;
 
-	int excess_headers = 58;
+	int excess_headers = 0;
 
 	//checks againt functions based on type
 
