@@ -213,7 +213,7 @@ void ll_print(struct llist *test)
 
 	printf("here\n");
 	while(tmp) {
-		struct device *data = tmp->data;
+		const struct device *data = tmp->data;
 		printf("Lat : %lf\n", data->latitude);
 		tmp = tmp->next;
 	}
