@@ -315,7 +315,7 @@ int start(int argc, char * argv[])
 			printf("um\n");
 			continue;
 		}
-
+		
 		fprintf(stdout, "Version: %d\n", stuff->version);
 		fprintf(stdout, "Type: %d\n", stuff->type);
 		fprintf(stdout, "Source Device: %d\n", stuff->source_device_id);
@@ -329,14 +329,13 @@ int start(int argc, char * argv[])
 			break;
 		}
 
-		data->source_dev_id = stuff->source_device_id;
+		if(*type_pt == 2) {
+			data->source_dev_id = stuff->source_device_id;
 
-		graph *g = graph_create();
-		graph_add_node(g, data);
-		//graph_print(g, print_item);
-		printf("Long: %\n", data->longitude);
-
-		printf("\n");
+			graph *g = graph_create();
+			graph_add_node(g, data);
+			graph_print(g, print_item);
+		}
 
 		free(data);
 
@@ -357,7 +356,11 @@ int start(int argc, char * argv[])
 void print_item(const void *data, bool is_node)
 {
 	if(is_node) {
-		printf("\n%d", *(int *)data);
+		struct device *print = (struct device *)data;
+		printf("Longitude %lf\n", print->longitude);
+		printf("Latitude %lf\n", print->latitude);
+		printf("Altitude %f\n", print->altitude);
+		printf("Src_id %d\n", print->source_dev_id);
 	} else {
 		printf(u8" → %d", *(int *)data);
 	}
