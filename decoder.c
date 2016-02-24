@@ -207,26 +207,29 @@ FOUND:
 	return path;
 }
 
-void ll_print(struct llist *l, const void *data)
+void ll_print(struct llist *test)
 {
-	while(l) {
-		struct device *print = (struct device *)data;
-		printf("Longitude %lf\n", print->longitude);
-		printf("Latitude %lf\n", print->latitude);
-		printf("Altitude %f\n", print->altitude);
-		printf("Src_id %d\n", print->source_dev_id);
-		l = l->next;
+	struct llist *tmp = test;
+
+	printf("here\n");
+	while(tmp) {
+		struct device *data = tmp->data;
+		printf("Lat : %lf\n", data->latitude);
+		tmp = tmp->next;
 	}
-	printf("NULL\n");
+
 }
 
+
 //change to graph start(int argc, char * argv[])
-graph *mainish(graph *g, char * argv[])
+struct llist *mainish(char * argv[])
 {
 	size_t file_count = 1;
 	int descrip = 0;
 
 	printf("\n");
+
+	struct llist *test = NULL;
 
 	descrip = open(argv[file_count], O_RDONLY); //gives an integer if open works successfully 
 	if (descrip == -1)
@@ -335,29 +338,27 @@ graph *mainish(graph *g, char * argv[])
 			break;
 		}
 
-		struct llist *test;
+
 
 		if(*type_pt == 2) {
 			data->source_dev_id = stuff->source_device_id;
 
-			if(counter == 0) {
-				test = ll_create(data);
-			}
-			else {
+			if(test) {
+				printf("add\n");
 				ll_add(&test, data);
 			}
+			else {
+				printf("create\n");
+				test = ll_create(data);				
+			}
 
-			//ll_print(test, );
-
-			graph_add_node(g, data);
+			//graph_add_node(g, data);
 
 			counter++;
 		}
 
 		free(stuff);
 		free(ver);
-
-		//printf("Start is now: %d\n", *start);
 	}
 
 	free(buf);
@@ -365,7 +366,7 @@ graph *mainish(graph *g, char * argv[])
 	free(total_length);
 	free(start);
 	close(descrip);
-	return g;
+	return test;
 }
 // move to devmap.c
 void print_item(const void *data, bool is_node)
