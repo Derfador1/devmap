@@ -9,7 +9,7 @@ LDFLAGS+=-Ldatastructures/llist -Ldatastructures/hash -Ldatastructures/queue -Ld
 
 LDLIBS+=-lm
 
-devmap: devmap.o decoder.o
+devmap: devmap.o decoder.o datastructures/llist/llist.o datastructures/hash/hash.o datastructures/queue/ll_queue.o datastructures/heap/heap.o datastructures/graph/graph.o
 
 profile:CFLAGS+=-pg
 profile:LDFLAGS+=-pg
@@ -18,7 +18,7 @@ profile:devmap
 .PHONY: clean debug profile
 
 clean:
-	rm devmap *.o
+	rm *.o
 
 debug: CFLAGS+=-g
 debug: devmap
