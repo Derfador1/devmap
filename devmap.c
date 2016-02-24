@@ -14,6 +14,8 @@ int main(int argc, char *argv[])
 	double battery_life;
 	char *ptr;
 
+	
+
 	if(argc == 1) {
 		printf("Please retry with a valid file to open.\n");
 		exit(1);
@@ -57,6 +59,8 @@ int main(int argc, char *argv[])
 		start(argc, &argv[file_count - 1]);
 		file_count++;
 	}
+
+	//graph_disassemble(g); //this needs to move to the devmap
 }
 
 //this code was taken from http://stackoverflow.com/questions/26446308/issues-with-a-result-from-calculating-latitude-longitude-from-haversine-formula
