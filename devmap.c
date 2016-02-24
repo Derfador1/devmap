@@ -45,13 +45,13 @@ int main(int argc, char *argv[])
 	graph *stuff = graph_create();
 
 	while(file_count < argc) {
-		start(stuff, argc, &argv[file_count - 1]);
+		mainish(stuff, &argv[file_count - 1]);
 		file_count++;
 	}
 
 	printf("\n");
 
-	graph_print(stuff, print_item);
+	//graph_print(stuff, print_item);
 
 	graph_destroy(stuff); //this needs to move to the devmap
 }
