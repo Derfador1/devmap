@@ -4,18 +4,15 @@
 #include "decoder.h"
 #include "graph/graph.h"
 
-
 #define PI 3.14159265
 #define EARTH_RAD 6356.752
 
 int main(int argc, char *argv[]) 
 {
 	int file_count = 1;
-	int descrip = 0;
+	//int descrip = 0;
 	double battery_life;
 	char *ptr;
-
-	
 
 	if(argc == 1) {
 		printf("Please retry with a valid file to open.\n");
@@ -25,7 +22,6 @@ int main(int argc, char *argv[])
 		if(strncmp(argv[file_count], "-p", 10) == 0) {
 			file_count++;
 			printf("Num: %d\n", file_count);
-			//battery_life = strtol(argv[file_count], &ptr, 10);
 			char *tester = argv[file_count];
 			for(unsigned int d = 0; d < strlen(argv[2]); ++d){
 				if(isdigit(tester[d]) != 0){
@@ -44,16 +40,6 @@ int main(int argc, char *argv[])
 				file_count++;
 			}
 		}
-
-		descrip = open(argv[file_count], O_RDONLY); //gives an integer if open works successfully 
-		if (descrip == -1)
-		{
-			fprintf(stderr, "Error could not open file\n");
-			exit(1);
-		}
-		else {
-			//not sure
-		}
 	}
 
 	graph *stuff = graph_create();
@@ -62,6 +48,8 @@ int main(int argc, char *argv[])
 		start(stuff, argc, &argv[file_count - 1]);
 		file_count++;
 	}
+
+	printf("\n");
 
 	graph_print(stuff, print_item);
 
@@ -72,6 +60,7 @@ int main(int argc, char *argv[])
 double haversine(double lat1, double lat2, double lon1, double lon2) 
 {
 	//conversion to radians
+	//change to m_pi with _xopen_source=500
 	lat1 *= PI/180;
 	lat2 *= PI/180;
 	lon1 *= PI/180;
