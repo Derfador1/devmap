@@ -2,6 +2,7 @@
 #include <math.h>
 #include <ctype.h>
 #include "decoder.h"
+#include "graph/graph.h"
 
 
 #define PI 3.14159265
@@ -55,12 +56,16 @@ int main(int argc, char *argv[])
 		}
 	}
 
+	graph *stuff = graph_create();
+
 	while(file_count < argc) {
-		start(argc, &argv[file_count - 1]);
+		start(stuff, argc, &argv[file_count - 1]);
 		file_count++;
 	}
 
-	//graph_disassemble(g); //this needs to move to the devmap
+	graph_print(stuff, print_item);
+
+	graph_destroy(stuff); //this needs to move to the devmap
 }
 
 //this code was taken from http://stackoverflow.com/questions/26446308/issues-with-a-result-from-calculating-latitude-longitude-from-haversine-formula
