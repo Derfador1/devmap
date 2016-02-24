@@ -8,7 +8,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
-#include "graph/graph.h"
+#include "llist.h"
 #define SIZE 1500
 
 /* Use this site as a starting point to seperate the fields to lower numbers based on fields given one this site
@@ -126,10 +126,12 @@ int extract_ver(struct ipv4 *ver, int *start, unsigned char *buf);
 
 int udp_check(int *start, unsigned char *buf);
 
-graph *mainish(graph *g, char * argv[]);
+struct llist *mainish(char * argv[]);
 
 void print_item(const void *data, bool is_node);
 
 void print_path(const struct llist *path);
+
+void ll_print(struct llist *test);
 
 #endif
