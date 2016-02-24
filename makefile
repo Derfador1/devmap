@@ -2,7 +2,10 @@
 CFLAGS+=-std=c11
 CFLAGS+=-Wall -Wextra -Wpedantic
 CFLAGS+=-Wwrite-strings -Wstack-usage=1024 -Wfloat-equal -Waggregate-return -Winline
-CFLAGS+=-I datastructures
+CFLAGS+=-Idatastructures
+
+CFLAGS+=-Idatastructures/llist -Idatastructures/hash -Idatastructures/queue -Idatastructures/heap
+LDFLAGS+=-Ldatastructures/llist -Ldatastructures/hash -Ldatastructures/queue -Ldatastructures/heap
 
 LDLIBS+=-lm
 
