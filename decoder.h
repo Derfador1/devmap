@@ -102,6 +102,13 @@ union gps_header{
 	unsigned char degrees[20];
 };
 
+struct device {
+	double longitude;
+	double latitude;
+	float altitude;
+	unsigned int source_dev_id; 	
+};
+
 
 int bit_seperation(struct meditrik *medi, unsigned char *buf, unsigned int *type_pt, unsigned int *total_length, int *start);
 
