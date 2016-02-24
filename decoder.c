@@ -112,6 +112,7 @@ struct llist *dijkstra_path(const graph *g, const void *from, const void *to)
 		struct pqueue_node *curr = heap_remove_min(to_process);
 
 		if(curr->data == to) {
+			free(curr);
 			goto FOUND;
 		}
 
@@ -143,6 +144,8 @@ struct llist *dijkstra_path(const graph *g, const void *from, const void *to)
 
 			check = check->next;
 		}
+		free(curr);
+		ll_disassemble(adjacencies);
 	}
 	heap_destroy(to_process);
 	hash_destroy(visited);
@@ -269,6 +272,8 @@ int start(int argc, char * argv[])
 
 	*start = global_header;
 
+	graph *g = graph_create();
+
 	while(*start < count) {
 		*start += packet + ethernet;
 		
@@ -332,17 +337,18 @@ int start(int argc, char * argv[])
 		if(*type_pt == 2) {
 			data->source_dev_id = stuff->source_device_id;
 
-			graph *g = graph_create();
 			graph_add_node(g, data);
 			graph_print(g, print_item);
 		}
 
-		free(data);
+		//free(data);
 
 		//printf("Start is now: %d\n", *start);
 	}
 
+	graph_disassemble(g);
 	free(buf);
+	free(data);
 	free(stuff);
 	free(ver);
 	free(type_pt);
