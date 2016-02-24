@@ -126,11 +126,10 @@ int extract_ver(struct ipv4 *ver, int *start, unsigned char *buf);
 
 int udp_check(int *start, unsigned char *buf);
 
-graph *start(graph *g, int argc, char * argv[]);
+graph *mainish(graph *g, char * argv[]);
 
 void print_item(const void *data, bool is_node);
 
 void print_path(const struct llist *path);
-
 
 #endif
