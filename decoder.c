@@ -207,30 +207,36 @@ FOUND:
 	return path;
 }
 
+void ll_print(struct llist *l, const void *data)
+{
+	while(l) {
+		struct device *print = (struct device *)data;
+		printf("Longitude %lf\n", print->longitude);
+		printf("Latitude %lf\n", print->latitude);
+		printf("Altitude %f\n", print->altitude);
+		printf("Src_id %d\n", print->source_dev_id);
+		l = l->next;
+	}
+	printf("NULL\n");
+}
+
 //change to graph start(int argc, char * argv[])
-graph *start(graph *g, int argc, char * argv[])
+graph *mainish(graph *g, char * argv[])
 {
 	size_t file_count = 1;
 	int descrip = 0;
 
 	printf("\n");
-	if (argc == 1)
+
+	descrip = open(argv[file_count], O_RDONLY); //gives an integer if open works successfully 
+	if (descrip == -1)
 	{
-		printf("Please retry with a valid file to open.\n");
+		fprintf(stderr, "Error could not open file\n");
 		exit(1);
 	}
-	else if (argc >= 2)
+	else
 	{
-		descrip = open(argv[file_count], O_RDONLY); //gives an integer if open works successfully 
-		if (descrip == -1)
-		{
-			fprintf(stderr, "Error could not open file\n");
-			exit(1);
-		}
-		else
-		{
-			//printf("You successfully opened %s\n", argv[1]);
-		}
+		//printf("You successfully opened %s\n", argv[1]);
 	}
 
 
@@ -260,6 +266,8 @@ graph *start(graph *g, int argc, char * argv[])
 	count = read(descrip, buf, SIZE); //sets count to integer value returned by read, which is number of things read
 
 	*start = global_header;
+
+	int counter = 0;
 
 	while(*start < count) {
 		struct meditrik *stuff = make_meditrik(); //make meditrik to malloc space
@@ -327,10 +335,23 @@ graph *start(graph *g, int argc, char * argv[])
 			break;
 		}
 
+		struct llist *test;
+
 		if(*type_pt == 2) {
 			data->source_dev_id = stuff->source_device_id;
 
+			if(counter == 0) {
+				test = ll_create(data);
+			}
+			else {
+				ll_add(&test, data);
+			}
+
+			//ll_print(test, );
+
 			graph_add_node(g, data);
+
+			counter++;
 		}
 
 		free(stuff);
@@ -346,7 +367,7 @@ graph *start(graph *g, int argc, char * argv[])
 	close(descrip);
 	return g;
 }
-
+// move to devmap.c
 void print_item(const void *data, bool is_node)
 {
 	if(is_node) {
