@@ -1,4 +1,18 @@
+#include <stdbool.h>
+#include <stdio.h>
+#include <inttypes.h>
+
 #include "decoder.h"
+#include "llist.h"
+#include "hash.h"
+#include "heap.h"
+#include "queue.h"
+#include "graph/graph.h"
+
+
+graph *big_graph(void);
+void print_item(const void *data, bool is_node);
+void print_path(const struct llist *path);
 
 struct meditrik *make_meditrik(void) //used to initialize meditrik structure when invoked
 {
@@ -20,6 +34,171 @@ struct ipv4 *make_ip(void) //used to initialize meditrik structure when invoked
 	return ipv4;
 }
 
+struct pqueue_node {
+	const void *data;
+	int priority;
+};
+
+int pq_compare(const void *a, const void *b)
+{
+	if(!a) {
+		return -(intptr_t)b;
+	}
+	if(!b) {
+		return (intptr_t)a;
+	}
+
+	struct pqueue_node *pqa, *pqb;
+	pqa = (struct pqueue_node *)a;
+	pqb = (struct pqueue_node *)b;
+
+	return pqa->priority - pqb->priority;
+}
+
+struct pqueue_node *__make_node(const void *data, int priority)
+{
+	struct pqueue_node *pqn = malloc(sizeof(*pqn));
+	if(!pqn) {
+		return NULL;
+	}
+	pqn->data = data;
+	pqn->priority = priority;
+
+	return pqn;
+}
+
+struct visited_node {
+	int distance;
+	struct pqueue_node *priority;
+	const void *prev;
+};
+
+struct visited_node *__make_vnode(int distance,
+		struct pqueue_node *priority, const void *prev)
+{
+	struct visited_node *vis = malloc(sizeof(*vis));
+	if(!vis) {
+		return NULL;
+	}
+	vis->prev = prev;
+	vis->distance = distance;
+	vis->priority = priority;
+
+	return vis;
+}
+
+struct llist *dijkstra_path(const graph *g, const void *from, const void *to)
+{
+	heap *to_process = heap_create(pq_compare);
+	struct pqueue_node *start =__make_node(from, 0);
+	heap_add(to_process, start);
+
+	hash *visited = hash_create();
+	struct visited_node *first = __make_vnode(0, start, NULL);
+	hash_insert(visited, from, first);
+
+	while(!heap_is_empty(to_process)) {
+		struct pqueue_node *curr = heap_remove_min(to_process);
+
+		if(curr->data == to) {
+			goto FOUND;
+		}
+
+		struct llist *adjacencies = graph_adjacent_to(g, curr->data);
+		struct llist *check = adjacencies;
+		while(check) {
+
+			int dist = curr->priority +
+				graph_edge_weight(g, curr->data, check->data);
+
+			if(!hash_exists(visited, check->data)) {
+				struct pqueue_node *pq_to_add =__make_node(check->data, dist);
+
+				struct visited_node *next_node =
+					__make_vnode(dist, pq_to_add, curr->data);
+
+				hash_insert(visited, check->data, next_node);
+				heap_add(to_process, pq_to_add);
+			} else {
+				struct visited_node *found = hash_fetch(visited, check->data);
+
+				if(dist < found->distance) {
+					found->distance = dist;
+					found->prev = curr->data;
+					found->priority->priority = dist;
+					heap_rebalance(to_process);
+				}
+			}
+
+			check = check->next;
+		}
+	}
+	heap_destroy(to_process);
+	hash_destroy(visited);
+
+	return NULL;
+
+FOUND:
+	heap_destroy(to_process);
+
+	struct llist *path = ll_create(to);
+	while(((struct visited_node *)hash_fetch(visited, path->data))->prev) {
+		ll_add(&path,
+				((struct visited_node *)hash_fetch(visited, path->data))->prev);
+	}
+
+	hash_destroy(visited);
+
+	return path;
+}
+
+struct llist *graph_path(const graph *g, const void *from, const void *to)
+{
+	hash *visited = hash_create();
+	queue *to_process = queue_create();
+
+	hash_insert(visited, from, NULL);
+	queue_enqueue(to_process, from);
+
+	while(!queue_is_empty(to_process)) {
+		void *curr = queue_dequeue(to_process);
+
+		struct llist *adjacencies = graph_adjacent_to(g, curr);
+		struct llist *check = adjacencies;
+		while(check) {
+			if(!hash_exists(visited, check->data)) {
+				hash_insert(visited, check->data, curr);
+				queue_enqueue(to_process, check->data);
+				if(check->data == to) {
+					ll_disassemble(adjacencies);
+					goto FOUND;
+				}
+			}
+
+			check = check->next;
+		}
+
+		ll_disassemble(adjacencies);
+	}
+
+	queue_disassemble(to_process);
+	hash_disassemble(visited);
+	return NULL;
+
+FOUND:
+	queue_disassemble(to_process);
+
+	struct llist *path = ll_create(to);
+	while(hash_fetch(visited, path->data)) {
+		ll_add(&path, hash_fetch(visited, path->data));
+	}
+
+	hash_disassemble(visited);
+
+	return path;
+}
+
+//change to graph start(int argc, char * argv[])
 int start(int argc, char * argv[])
 {
 	size_t file_count = 1;
@@ -82,7 +261,7 @@ int start(int argc, char * argv[])
 		
 		verse = extract_ver(ver, start, buf);
 
-		printf("Ip verision: %d\n", verse);
+		printf("Ip version: %d\n", verse);
 
 		if(verse == 4 ) {
 			*start += ipv4;
@@ -94,6 +273,8 @@ int start(int argc, char * argv[])
 		/*
 		if(!udp_check(udp_start, buf)) { //change to 57005
 			printf("This is a malformed packet\n");
+			continure; 
+			-or-
 			free(buf);
 			free(stuff);
 			free(ver);
@@ -101,11 +282,14 @@ int start(int argc, char * argv[])
 			free(total_length);
 			free(start);
 			close(descrip);
-			exit(1);
+			exit(1); goto here
 		}
 		*/
 
 		src_port = udp_check(start, buf);
+		//*start += 2;
+		//dst_port = udp_check(start, buf);
+		//*start -= 2;
 
 		printf("SRC Port: %d\n", src_port);
 
@@ -115,22 +299,37 @@ int start(int argc, char * argv[])
 
 		/*
 		if(*type_pt != 2) {
-			//printf("um\n");
+			printf("um\n");
 			continue;
 		}
-		*/
 
 		fprintf(stdout, "Version: %d\n", stuff->version);
-		fprintf(stdout, "Sequence: %d\n", stuff->seq_id);
 		fprintf(stdout, "Type: %d\n", stuff->type);
 		fprintf(stdout, "Source Device: %d\n", stuff->source_device_id);
 		fprintf(stdout, "Destination Device: %d\n", stuff->dest_device_id);
+		*/
+		fprintf(stdout, "Sequence: %d\n", stuff->seq_id);
 
 		if (field_check(type_pt, buf, start, total_length) != 1)
 		{
 			fprintf(stderr, "Error has occured in field checking\n");
 			break;
 		}
+
+		int *seq = malloc(sizeof(*seq));
+		
+		*seq = stuff->seq_id;
+
+		//printf();
+
+		graph *g = graph_create();
+		graph_add_node(g, seq);
+		graph_print(g, print_item);
+
+		printf("\n");
+
+
+		//printf("Start is now: %d\n", *start);
 	}
 
 	free(buf);
@@ -142,6 +341,24 @@ int start(int argc, char * argv[])
 	close(descrip);
 
 	return 1;
+}
+
+void print_item(const void *data, bool is_node)
+{
+	if(is_node) {
+		printf("\n%d", *(int *)data);
+	} else {
+		printf(u8" → %d", *(int *)data);
+	}
+}
+
+void print_path(const struct llist *path)
+{
+	while(path) {
+		printf(u8"%s → ", (char *)(path->data));
+		path = path->next;
+	}
+	printf("\n");
 }
 
 int extract_ver(struct ipv4 *ver, int *start, unsigned char *buf)
@@ -157,7 +374,7 @@ int udp_check(int *start, unsigned char *buf)
 	unsigned int port_start = buf[*start];
 	port_start <<= 8;
 	port_start += buf[++(*start)];
-	(*start)--;
+	(*start)--; //returns start to correct value
 	return port_start;
 }
 
