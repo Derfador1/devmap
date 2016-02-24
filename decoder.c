@@ -24,6 +24,17 @@ struct meditrik *make_meditrik(void) //used to initialize meditrik structure whe
 	return meditrik;
 }
 
+struct device *make_device(void) //used to initialize meditrik structure when invoked
+{
+	struct device *device = malloc(sizeof(struct device));
+	if(!device) { //makes sure there is something to malloc
+		return NULL;
+	}
+
+	return device;
+}
+
+
 struct ipv4 *make_ip(void) //used to initialize meditrik structure when invoked
 {
 	struct ipv4 *ipv4 = malloc(sizeof(struct ipv4));
@@ -252,6 +263,8 @@ int start(int argc, char * argv[])
 
 	struct meditrik *stuff = make_meditrik(); //make meditrik to malloc space
 
+	struct device *data = make_device();
+
 	struct ipv4 *ver = make_ip();
 
 	*start = global_header;
@@ -307,27 +320,25 @@ int start(int argc, char * argv[])
 		fprintf(stdout, "Type: %d\n", stuff->type);
 		fprintf(stdout, "Source Device: %d\n", stuff->source_device_id);
 		fprintf(stdout, "Destination Device: %d\n", stuff->dest_device_id);
-		*/
 		fprintf(stdout, "Sequence: %d\n", stuff->seq_id);
+		*/
 
-		if (field_check(type_pt, buf, start, total_length) != 1)
+		if (field_check(data, type_pt, buf, start, total_length) != 1)
 		{
 			fprintf(stderr, "Error has occured in field checking\n");
 			break;
 		}
 
-		int *seq = malloc(sizeof(*seq));
-		
-		*seq = stuff->seq_id;
-
-		//printf();
+		data->source_dev_id = stuff->source_device_id;
 
 		graph *g = graph_create();
-		graph_add_node(g, seq);
-		graph_print(g, print_item);
+		graph_add_node(g, data);
+		//graph_print(g, print_item);
+		printf("Long: %\n", data->longitude);
 
 		printf("\n");
 
+		free(data);
 
 		//printf("Start is now: %d\n", *start);
 	}
@@ -433,7 +444,7 @@ int bit_seperation(struct meditrik *medi, unsigned char *buf, unsigned int *type
 }
 
 
-int field_check(unsigned int *type_pt, unsigned char *buf, int *start, unsigned int *total_length)
+int field_check(struct device *data, unsigned int *type_pt, unsigned char *buf, int *start, unsigned int *total_length)
 {
 	short counter = 0;
 
@@ -465,7 +476,7 @@ int field_check(unsigned int *type_pt, unsigned char *buf, int *start, unsigned 
 	}
 	else if (*type_pt == 2)
 	{
-		if (gps_decode(start, buf, counter, excess_headers) != 2)
+		if (gps_decode(data, start, buf, counter, excess_headers) != 2)
 		{
 			fprintf(stderr, "Error with gps_decode\n");
 			return 0;
@@ -580,7 +591,7 @@ int command_decode(int *start, unsigned char * buf, int excess_headers)
 	
 }
 
-int gps_decode(int *start, unsigned char *buf, int counter, int excess_headers)
+int gps_decode(struct device *data, int *start, unsigned char *buf, int counter, int excess_headers)
 {
 	union gps_header gps;
 	
@@ -596,6 +607,12 @@ int gps_decode(int *start, unsigned char *buf, int counter, int excess_headers)
 	fprintf(stdout, "Latitude: %.9f degree N\n", gps.fields.lat);	//in buffer and moves down based on types of the three
 
 	fprintf(stdout, "Altitude: %f ft\n", gps.fields.alt * 6);
+
+	data->longitude = gps.fields.longs;
+
+	data->latitude = gps.fields.lat;
+
+	data->altitude = (gps.fields.alt * 6);
 	
 	(*start)++;
 
