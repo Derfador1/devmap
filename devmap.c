@@ -2,15 +2,15 @@
 #include <math.h>
 #include <ctype.h>
 #include "decoder.h"
-#include "graph/graph.h"
+#include "llist.h"
 
 #define PI 3.14159265
 #define EARTH_RAD 6356.752
 
+
 int main(int argc, char *argv[]) 
 {
 	int file_count = 1;
-	//int descrip = 0;
 	double battery_life;
 	char *ptr;
 
@@ -42,10 +42,10 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	graph *stuff = graph_create();
+	struct llist *test = NULL;;
 
 	while(file_count < argc) {
-		mainish(stuff, &argv[file_count - 1]);
+		mainish(&argv[file_count - 1]);
 		file_count++;
 	}
 
@@ -53,7 +53,12 @@ int main(int argc, char *argv[])
 
 	//graph_print(stuff, print_item);
 
-	graph_destroy(stuff); //this needs to move to the devmap
+	ll_print(test);
+
+	//ll_print(overlord);
+	//ll_destroy(overlord);
+
+	ll_destroy(test); //this needs to move to the devmap
 }
 
 //this code was taken from http://stackoverflow.com/questions/26446308/issues-with-a-result-from-calculating-latitude-longitude-from-haversine-formula
