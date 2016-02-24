@@ -9,7 +9,6 @@
 #include "queue.h"
 #include "graph/graph.h"
 
-
 struct meditrik *make_meditrik(void) //used to initialize meditrik structure when invoked
 {
 	struct meditrik *meditrik = malloc(sizeof(struct meditrik));
@@ -334,14 +333,12 @@ graph *start(graph *g, int argc, char * argv[])
 			graph_add_node(g, data);
 		}
 
-		//free(data);
 		free(stuff);
 		free(ver);
 
-		printf("Start is now: %d\n", *start);
+		//printf("Start is now: %d\n", *start);
 	}
 
-	//graph_destroy(g);
 	free(buf);
 	free(type_pt);
 	free(total_length);
@@ -602,11 +599,11 @@ int gps_decode(struct device *data, int *start, unsigned char *buf, int counter,
 
 	*start = *start + counter;
 
-	fprintf(stdout, "Longitude: %.9f degree W\n", gps.fields.longs); //fills longitude, latitude, alt from what was stored
+	//fprintf(stdout, "Longitude: %.9f degree W\n", gps.fields.longs); //fills longitude, latitude, alt from what was stored
 
-	fprintf(stdout, "Latitude: %.9f degree N\n", gps.fields.lat);	//in buffer and moves down based on types of the three
+	//fprintf(stdout, "Latitude: %.9f degree N\n", gps.fields.lat);	//in buffer and moves down based on types of the three
 
-	fprintf(stdout, "Altitude: %f ft\n", gps.fields.alt * 6);
+	//fprintf(stdout, "Altitude: %f ft\n", gps.fields.alt * 6);
 
 	data->longitude = gps.fields.longs;
 
