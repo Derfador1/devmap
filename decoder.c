@@ -10,10 +10,6 @@
 #include "graph/graph.h"
 
 
-graph *big_graph(void);
-void print_item(const void *data, bool is_node);
-void print_path(const struct llist *path);
-
 struct meditrik *make_meditrik(void) //used to initialize meditrik structure when invoked
 {
 	struct meditrik *meditrik = malloc(sizeof(struct meditrik));
@@ -213,7 +209,7 @@ FOUND:
 }
 
 //change to graph start(int argc, char * argv[])
-int start(int argc, char * argv[])
+graph *start(graph *g, int argc, char * argv[])
 {
 	size_t file_count = 1;
 	int descrip = 0;
@@ -264,17 +260,15 @@ int start(int argc, char * argv[])
 
 	count = read(descrip, buf, SIZE); //sets count to integer value returned by read, which is number of things read
 
-	struct meditrik *stuff = make_meditrik(); //make meditrik to malloc space
-
-	struct device *data = make_device();
-
-	struct ipv4 *ver = make_ip();
-
 	*start = global_header;
 
-	graph *g = graph_create();
-
 	while(*start < count) {
+		struct meditrik *stuff = make_meditrik(); //make meditrik to malloc space
+
+		struct device *data = make_device();
+
+		struct ipv4 *ver = make_ip();
+
 		*start += packet + ethernet;
 		
 		verse = extract_ver(ver, start, buf);
@@ -338,25 +332,22 @@ int start(int argc, char * argv[])
 			data->source_dev_id = stuff->source_device_id;
 
 			graph_add_node(g, data);
-			graph_print(g, print_item);
 		}
 
 		//free(data);
+		free(stuff);
+		free(ver);
 
-		//printf("Start is now: %d\n", *start);
+		printf("Start is now: %d\n", *start);
 	}
 
-	graph_disassemble(g);
+	//graph_destroy(g);
 	free(buf);
-	free(data);
-	free(stuff);
-	free(ver);
 	free(type_pt);
 	free(total_length);
 	free(start);
 	close(descrip);
-
-	return 1;
+	return g;
 }
 
 void print_item(const void *data, bool is_node)
