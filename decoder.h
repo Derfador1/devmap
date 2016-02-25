@@ -11,6 +11,7 @@
 #include "llist.h"
 #include "graph/graph.h"
 #define SIZE 1500
+#define EARTH_RAD 6378
 
 /* Use this site as a starting point to seperate the fields to lower numbers based on fields given one this site
 https://wiki.wireshark.org/Development/LibpcapFileFormat
@@ -134,5 +135,7 @@ void print_path(const struct llist *path);
 void ll_print(struct llist *test); //move to devmap.h
 
 graph *ll_to_graph(graph *g, struct llist *l);
+
+double haversine(double lat1, double lat2, double lon1, double lon2, float alt1, float alt2);
 
 #endif
