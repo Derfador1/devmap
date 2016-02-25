@@ -9,6 +9,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "llist.h"
+#include "graph/graph.h"
 #define SIZE 1500
 
 /* Use this site as a starting point to seperate the fields to lower numbers based on fields given one this site
@@ -49,8 +50,6 @@ struct ipv6{
 	unsigned int payload : 16;
 	unsigned int next_header : 8;
 	unsigned int hop_limit : 8;
-	//128 source 
-	//128 dest
 };
 
 struct ipv4{
@@ -83,7 +82,6 @@ struct meditrik{
 	unsigned int total_length : 16;
 	unsigned int source_device_id : 32;
 	unsigned int dest_device_id : 32;
-
 };
 
 struct gps {
@@ -133,6 +131,8 @@ void print_item(const void *data, bool is_node);
 
 void print_path(const struct llist *path);
 
-void ll_print(struct llist *test);
+void ll_print(struct llist *test); //move to devmap.h
+
+graph *ll_to_graph(graph *g, struct llist *l);
 
 #endif
