@@ -222,11 +222,8 @@ void ll_print(struct llist *test)
 		}
 		tmp = tmp->next;
 	}
-
 }
 
-
-//change to graph start(int argc, char * argv[])
 struct llist *extraction(char * argv[])
 {
 	size_t file_count = 1;
@@ -351,8 +348,6 @@ struct llist *extraction(char * argv[])
 				printf("create\n");
 				test = ll_create(data);				
 			}
-
-			//graph_add_node(g, data);
 		}
 		else {
 			data->latitude = 0;
@@ -373,7 +368,24 @@ struct llist *extraction(char * argv[])
 	close(descrip);
 	return test;
 }
-// move to devmap.c
+/* move to devmap.c
+graph *ll_to_graph(graph *g, struct llist *l)
+{
+
+	while(l) { //slow loop
+		struct llist *tmp = l;
+		graph_add_node(g, l->data);
+		while(tmp) { //fast loop
+			tmp = tmp->next;
+			graph_add_edge(g, l, tmp, weight(from haversine));
+		}
+		l = l->next;
+	}
+	//might need to ll_destroy the tmp
+	return g;
+}
+*/
+
 void print_item(const void *data, bool is_node)
 {
 	if(is_node) {
@@ -613,7 +625,6 @@ int command_decode(int *start, unsigned char * buf)
 	*start = *start;
 
 	return 1;
-	
 }
 
 int gps_decode(struct device *data, int *start, unsigned char *buf, int counter)
@@ -639,9 +650,9 @@ int gps_decode(struct device *data, int *start, unsigned char *buf, int counter)
 
 	data->altitude = (gps.fields.alt * 6);
 	
-	(*start)++;
+	(*start)++; //remove this to make new solutions work with proper byte count
 
-	*start = *start + 3;
+	*start = *start + 3; //remove + 3
 
 	return 2;
 }
