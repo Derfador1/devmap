@@ -330,6 +330,9 @@ struct llist *extraction(char * argv[])
 		fprintf(stdout, "Sequence: %d\n", stuff->seq_id);
 		*/
 		data->battery_power = 0;
+		data->latitude = 0;
+		data->longitude = 0;
+		data->altitude = 0;
 
 		if (field_check(data, type_pt, buf, start, total_length) != 1)
 		{
@@ -351,6 +354,14 @@ struct llist *extraction(char * argv[])
 
 			//graph_add_node(g, data);
 		}
+		else {
+			data->latitude = 0;
+			data->longitude = 0;
+			data->altitude = 0;
+		}
+
+		printf("Count:%d Start:%d\n", count, *start);
+
 		free(stuff);
 		free(ver);
 	}
@@ -461,13 +472,12 @@ int field_check(struct device *data, unsigned int *type_pt, unsigned char *buf, 
 {
 	short counter = 0;
 
-	int excess_headers = 0;
 
 	//checks againt functions based on type
 
 	if (*type_pt == 0)
 	{
-		if (status_decode(data, start, buf, counter, excess_headers) != 0)
+		if (status_decode(data, start, buf, counter) != 0)
 		{
 			fprintf(stderr, "Error with status_decode\n");
 			return 0;
@@ -478,7 +488,7 @@ int field_check(struct device *data, unsigned int *type_pt, unsigned char *buf, 
 	}
 	else if (*type_pt == 1)
 	{
-		if (command_decode(start, buf, excess_headers) != 1)
+		if (command_decode(start, buf) != 1)
 		{
 			fprintf(stderr, "Error with command_decode\n");
 			return 0;
@@ -489,7 +499,7 @@ int field_check(struct device *data, unsigned int *type_pt, unsigned char *buf, 
 	}
 	else if (*type_pt == 2)
 	{
-		if (gps_decode(data, start, buf, counter, excess_headers) != 2)
+		if (gps_decode(data, start, buf, counter) != 2)
 		{
 			fprintf(stderr, "Error with gps_decode\n");
 			return 0;
@@ -499,7 +509,7 @@ int field_check(struct device *data, unsigned int *type_pt, unsigned char *buf, 
 	}
 	else if (*type_pt == 3)
 	{
-		if (message_decode(start, buf, total_length, excess_headers) != 3) //set meditrik and excess header in func
+		if (message_decode(start, buf, total_length) != 3) //set meditrik and excess header in func
 		{
 			fprintf(stderr, "Error with message_decode\n");
 			return 0;
@@ -513,11 +523,11 @@ int field_check(struct device *data, unsigned int *type_pt, unsigned char *buf, 
 	}
 }
 
-int status_decode(struct device *data, int *start, unsigned char *buf, int counter, int excess_headers)
+int status_decode(struct device *data, int *start, unsigned char *buf, int counter)
 {
-	//short glucose = 0;
-	//short capsaicin = 0;
-	//short omorfine = 0;
+	short glucose = 0;
+	short capsaicin = 0;
+	short omorfine = 0;
 
 	union battery power;
 
@@ -530,34 +540,34 @@ int status_decode(struct device *data, int *start, unsigned char *buf, int count
 
 	data->battery_power = (power.percent * 100);
 
+	printf("Battery_power %.02lf%%\n", data->battery_power);
+
 	//fprintf(stdout, "Battery power : %.2f%%\n", power.percent * 100);
 
 	unsigned int glucose_start = buf[*start]; 
 	glucose_start <<= 8;
 	glucose_start += buf[++(*start)];
-	//glucose = glucose_start;
-	//fprintf(stdout, "Glucose: %d\n", glucose);
+	glucose = glucose_start;
+	fprintf(stdout, "Glucose: %d\n", glucose);
 
 	unsigned int capsaicin_start = buf[++(*start)];
 	capsaicin_start <<= 8;
 	capsaicin_start += buf[++(*start)];
-	//capsaicin = capsaicin_start;
-	//fprintf(stdout, "Capsaicin: %d\n", capsaicin);
+	capsaicin = capsaicin_start;
+	fprintf(stdout, "Capsaicin: %d\n", capsaicin);
 
 	unsigned int omorfine_start = buf[++(*start)];
 	omorfine_start <<= 8;
 	omorfine_start += buf[++(*start)];
-	//omorfine = omorfine_start;
-	//fprintf(stdout, "Omorfine: %d\n", omorfine);
+	omorfine = omorfine_start;
+	fprintf(stdout, "Omorfine: %d\n", omorfine);
 
 	(*start)++;
-
-	*start = *start + excess_headers; //adds 58 to start so it can check for multiple packets
 
 	return 0;
 }
 
-int command_decode(int *start, unsigned char * buf, int excess_headers)
+int command_decode(int *start, unsigned char * buf)
 {
 	unsigned int byte_start = buf[*start];
 	byte_start <<= 8;
@@ -600,13 +610,13 @@ int command_decode(int *start, unsigned char * buf, int excess_headers)
 
 	(*start)++;
 
-	*start = *start + excess_headers;
+	*start = *start;
 
 	return 1;
 	
 }
 
-int gps_decode(struct device *data, int *start, unsigned char *buf, int counter, int excess_headers)
+int gps_decode(struct device *data, int *start, unsigned char *buf, int counter)
 {
 	union gps_header gps;
 	
@@ -631,12 +641,12 @@ int gps_decode(struct device *data, int *start, unsigned char *buf, int counter,
 	
 	(*start)++;
 
-	*start = *start + excess_headers;
+	*start = *start + 3;
 
 	return 2;
 }
 
-int message_decode(int *start, unsigned char *buf, unsigned int *total_length, int excess_headers)
+int message_decode(int *start, unsigned char *buf, unsigned int *total_length)
 {
 	int meditrik_header = 12;
 
@@ -659,7 +669,7 @@ int message_decode(int *start, unsigned char *buf, unsigned int *total_length, i
 
 	*start = *start + *total_length;
 
-	*start = *start + excess_headers - 2;
+	*start = *start - 2;
 
 	free(counter);
 
