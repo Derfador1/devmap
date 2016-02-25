@@ -368,23 +368,25 @@ struct llist *extraction(char * argv[])
 	close(descrip);
 	return test;
 }
-/* move to devmap.c
+
+
 graph *ll_to_graph(graph *g, struct llist *l)
 {
 
 	while(l) { //slow loop
-		struct llist *tmp = l;
+		struct llist *tmp = l->next;
 		graph_add_node(g, l->data);
 		while(tmp) { //fast loop
+			//graph_add_edge(g, l, tmp, weight(from haversine));
+			printf("tmp loop\n");
 			tmp = tmp->next;
-			graph_add_edge(g, l, tmp, weight(from haversine));
 		}
 		l = l->next;
 	}
 	//might need to ll_destroy the tmp
 	return g;
 }
-*/
+
 
 void print_item(const void *data, bool is_node)
 {
