@@ -407,16 +407,17 @@ graph *ll_to_graph(graph *g, struct llist *l)
 		while(tmp) {
 			const struct device *tmp_l = l->data;
 			const struct device *tmp2 = tmp->data;
-			//graph_add_edge(g, l, tmp, weight(from haversine));
 			result = haversine(tmp_l->latitude, tmp2->latitude, tmp_l->longitude, tmp2->longitude, tmp_l->altitude, tmp2->altitude);
 			//printf("Result: %f\n", result);
 			if(result > 1.25 && result < 5.00) {
 				printf("Result: %f\n", result);
+				graph_add_edge(g, tmp_l, tmp2, result);
 			}
 			tmp = tmp->next;
 		}
 		l = l->next;
 	}
+	printf("\n");
 	return g;
 }
 
