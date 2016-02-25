@@ -8,6 +8,7 @@
 #include "heap.h"
 #include "queue.h"
 #include "graph/graph.h"
+#include <math.h>
 
 struct meditrik *make_meditrik(void) //used to initialize meditrik structure when invoked
 {
@@ -369,15 +370,37 @@ struct llist *extraction(char * argv[])
 	return test;
 }
 
+double haversine(double lat1, double lat2, double lon1, double lon2) 
+{
+	//conversion to radians
+	//change to m_pi with _xopen_source=500
+	lat1 *= PI/180;
+	lat2 *= PI/180;
+	lon1 *= PI/180;
+	lon2 *= PI/180;
+
+	//getting the difference for lat and lon
+	double dlat = (lat2 - lat1);
+	double dlon = (lon2 - lon1);
+
+	//math
+	double a = pow(sin(dlat/2), 2) + cos(lat1) * cos(lat2) * pow(sin(dlon/2), 2);
+	double b = 2 * atan2(sqrt(a), sqrt(1-a));
+	return EARTH_RAD * b;
+}
 
 graph *ll_to_graph(graph *g, struct llist *l)
 {
-
+	double result = 0;
 	while(l) {
 		struct llist *tmp = l->next;
 		graph_add_node(g, l->data);
 		while(tmp) {
+			const struct device *tmp_l = l->data;
+			const struct device *tmp2 = tmp->data;
 			//graph_add_edge(g, l, tmp, weight(from haversine));
+			result = haversine(tmp_l->latitude, tmp2->latitude, tmp_l->longitude, tmp2->longitude);
+			printf("Result: %lf\n", result);
 			tmp = tmp->next;
 		}
 		l = l->next;
