@@ -42,15 +42,15 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	struct llist *overlord = NULL;
+	struct llist *final_ll = NULL;
 
 	while(file_count < argc) {
-		struct llist *test = mainish(&argv[file_count - 1]);
-		if(overlord) {
-			ll_append(overlord, test);
+		struct llist *test = extraction(&argv[file_count - 1]);
+		if(final_ll) {
+			ll_append(final_ll, test);
 		}
 		else {
-			overlord = test;
+			final_ll = test;
 		}
 
 		file_count++;
@@ -58,10 +58,8 @@ int main(int argc, char *argv[])
 
 	printf("\n");
 
-	//graph_print(stuff, print_item);
-
-	ll_print(overlord);
-	ll_destroy(overlord);
+	ll_print(final_ll);
+	ll_destroy(final_ll);
 }
 
 //this code was taken from http://stackoverflow.com/questions/26446308/issues-with-a-result-from-calculating-latitude-longitude-from-haversine-formula
