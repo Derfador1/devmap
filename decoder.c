@@ -442,9 +442,18 @@ void print_item(const void *data, bool is_node)
 
 void print_path(const struct llist *path)
 {
-	while(path) {
-		printf(u8"%s → ", (char *)(path->data));
-		path = path->next;
+	const struct llist *tmp = path;
+	while(tmp) {
+		const struct device *print = tmp->data; 
+		printf("Lon : %lf\n", print->longitude);
+		printf("Lat : %lf\n", print->latitude);
+		printf("Altitude %f\n", print->altitude);
+		printf("Src_id %d\n", print->source_dev_id);
+		if(!(print->battery_power < .001 || print->battery_power > 100.001)) {
+			printf("Battery Power %.02lf%%\n", print->battery_power);
+		}
+		printf(" → ");
+		tmp = tmp->next;
 	}
 	printf("\n");
 }
