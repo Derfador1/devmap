@@ -58,15 +58,16 @@ int main(int argc, char *argv[])
 
 	printf("\n");
 	
-	/*
-	graph stuff
+
 	graph *final_g = graph_create();
 	ll_to_graph(final_g, final_ll);
-	//graph_print(g, print_item);
-	*/
+	printf("Graph print: \n");
+	graph_print(final_g, print_item);
 
-	ll_print(final_ll);
+	//ll_print(final_ll);
 	ll_destroy(final_ll);
+
+	graph_disassemble(final_g);
 	
 }
 
