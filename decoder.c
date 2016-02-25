@@ -392,11 +392,8 @@ double haversine(double lat1, double lat2, double lon1, double lon2, float alt1,
 
 	float temp = fabsf(alt1 - alt2);	
 	double distance = sqrt(d * d + temp);
-	if(distance > 1.25 && distance < 5.00) {
-		printf("true\n");
-		return distance;
-	}
-	printf("false\n");
+	//move this check to ll_to_graph
+
 	return distance;
 
 }
@@ -412,7 +409,10 @@ graph *ll_to_graph(graph *g, struct llist *l)
 			const struct device *tmp2 = tmp->data;
 			//graph_add_edge(g, l, tmp, weight(from haversine));
 			result = haversine(tmp_l->latitude, tmp2->latitude, tmp_l->longitude, tmp2->longitude, tmp_l->altitude, tmp2->altitude);
-			printf("Result: %f\n", result);
+			//printf("Result: %f\n", result);
+			if(result > 1.25 && result < 5.00) {
+				printf("Result: %f\n", result);
+			}
 			tmp = tmp->next;
 		}
 		l = l->next;
