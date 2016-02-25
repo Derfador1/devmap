@@ -211,10 +211,15 @@ void ll_print(struct llist *test)
 {
 	struct llist *tmp = test;
 
-	printf("here\n");
 	while(tmp) {
 		const struct device *data = tmp->data;
+		printf("Lon : %lf\n", data->longitude);
 		printf("Lat : %lf\n", data->latitude);
+		printf("Altitude %f\n", data->altitude);
+		printf("Src_id %d\n", data->source_dev_id);
+		if(!(data->battery_power < .001 || data->battery_power > 100.001)) {
+			printf("Battery Power %.02lf%%\n", data->battery_power);
+		}
 		tmp = tmp->next;
 	}
 
@@ -222,7 +227,7 @@ void ll_print(struct llist *test)
 
 
 //change to graph start(int argc, char * argv[])
-struct llist *mainish(char * argv[])
+struct llist *extraction(char * argv[])
 {
 	size_t file_count = 1;
 	int descrip = 0;
@@ -262,6 +267,8 @@ struct llist *mainish(char * argv[])
 
 	int src_port = 0;
 
+	int dst_port = 0;
+
 	unsigned char *buf = malloc(SIZE);
 
 	memset(buf, '\0', SIZE);
@@ -269,8 +276,6 @@ struct llist *mainish(char * argv[])
 	count = read(descrip, buf, SIZE); //sets count to integer value returned by read, which is number of things read
 
 	*start = global_header;
-
-	int counter = 0;
 
 	while(*start < count) {
 		struct meditrik *stuff = make_meditrik(); //make meditrik to malloc space
@@ -292,28 +297,22 @@ struct llist *mainish(char * argv[])
 			*start += ipv6;
 		}
 
-		/*
-		if(!udp_check(udp_start, buf)) { //change to 57005
-			printf("This is a malformed packet\n");
-			continure; 
-			-or-
-			free(buf);
-			free(stuff);
-			free(ver);
-			free(type_pt);
-			free(total_length);
-			free(start);
-			close(descrip);
-			exit(1); goto here
-		}
-		*/
-
 		src_port = udp_check(start, buf);
-		//*start += 2;
-		//dst_port = udp_check(start, buf);
-		//*start -= 2;
+		*start += 2;
+		dst_port = udp_check(start, buf);
+		*start -= 2;
 
 		printf("SRC Port: %d\n", src_port);
+		printf("DST Port: %d\n", dst_port);
+
+		/*
+		if(src_port != 57005 || dst_port != 57005) {
+			printf("This is a malformed packet\n");
+			free(stuff);
+			free(ver);
+			goto END;
+		}
+		*/
 
 		*start += udp;
 
@@ -324,13 +323,13 @@ struct llist *mainish(char * argv[])
 			printf("um\n");
 			continue;
 		}
-		
 		fprintf(stdout, "Version: %d\n", stuff->version);
 		fprintf(stdout, "Type: %d\n", stuff->type);
 		fprintf(stdout, "Source Device: %d\n", stuff->source_device_id);
 		fprintf(stdout, "Destination Device: %d\n", stuff->dest_device_id);
 		fprintf(stdout, "Sequence: %d\n", stuff->seq_id);
 		*/
+		data->battery_power = 0;
 
 		if (field_check(data, type_pt, buf, start, total_length) != 1)
 		{
@@ -338,9 +337,7 @@ struct llist *mainish(char * argv[])
 			break;
 		}
 
-
-
-		if(*type_pt == 2) {
+		if(*type_pt == 2 || *type_pt == 0) {
 			data->source_dev_id = stuff->source_device_id;
 
 			if(test) {
@@ -353,10 +350,7 @@ struct llist *mainish(char * argv[])
 			}
 
 			//graph_add_node(g, data);
-
-			counter++;
 		}
-
 		free(stuff);
 		free(ver);
 	}
@@ -473,7 +467,7 @@ int field_check(struct device *data, unsigned int *type_pt, unsigned char *buf, 
 
 	if (*type_pt == 0)
 	{
-		if (status_decode(start, buf, counter, excess_headers) != 0)
+		if (status_decode(data, start, buf, counter, excess_headers) != 0)
 		{
 			fprintf(stderr, "Error with status_decode\n");
 			return 0;
@@ -519,11 +513,11 @@ int field_check(struct device *data, unsigned int *type_pt, unsigned char *buf, 
 	}
 }
 
-int status_decode(int *start, unsigned char *buf, int counter, int excess_headers)
+int status_decode(struct device *data, int *start, unsigned char *buf, int counter, int excess_headers)
 {
-	short glucose = 0;
-	short capsaicin = 0;
-	short omorfine = 0;
+	//short glucose = 0;
+	//short capsaicin = 0;
+	//short omorfine = 0;
 
 	union battery power;
 
@@ -534,25 +528,27 @@ int status_decode(int *start, unsigned char *buf, int counter, int excess_header
 
 	*start = *start + counter;
 
-	fprintf(stdout, "Battery power : %.2f%%\n", power.percent * 100);
+	data->battery_power = (power.percent * 100);
+
+	//fprintf(stdout, "Battery power : %.2f%%\n", power.percent * 100);
 
 	unsigned int glucose_start = buf[*start]; 
 	glucose_start <<= 8;
 	glucose_start += buf[++(*start)];
-	glucose = glucose_start;
-	fprintf(stdout, "Glucose: %d\n", glucose);
+	//glucose = glucose_start;
+	//fprintf(stdout, "Glucose: %d\n", glucose);
 
 	unsigned int capsaicin_start = buf[++(*start)];
 	capsaicin_start <<= 8;
 	capsaicin_start += buf[++(*start)];
-	capsaicin = capsaicin_start;
-	fprintf(stdout, "Capsaicin: %d\n", capsaicin);
+	//capsaicin = capsaicin_start;
+	//fprintf(stdout, "Capsaicin: %d\n", capsaicin);
 
 	unsigned int omorfine_start = buf[++(*start)];
 	omorfine_start <<= 8;
 	omorfine_start += buf[++(*start)];
-	omorfine = omorfine_start;
-	fprintf(stdout, "Omorfine: %d\n", omorfine);
+	//omorfine = omorfine_start;
+	//fprintf(stdout, "Omorfine: %d\n", omorfine);
 
 	(*start)++;
 
