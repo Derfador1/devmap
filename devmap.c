@@ -4,10 +4,6 @@
 #include "decoder.h"
 #include "llist.h"
 
-#define PI 3.14159265
-#define EARTH_RAD 6356.752
-
-
 int main(int argc, char *argv[]) 
 {
 	int file_count = 1;
@@ -72,21 +68,3 @@ int main(int argc, char *argv[])
 }
 
 //this code was taken from http://stackoverflow.com/questions/26446308/issues-with-a-result-from-calculating-latitude-longitude-from-haversine-formula
-double haversine(double lat1, double lat2, double lon1, double lon2) 
-{
-	//conversion to radians
-	//change to m_pi with _xopen_source=500
-	lat1 *= PI/180;
-	lat2 *= PI/180;
-	lon1 *= PI/180;
-	lon2 *= PI/180;
-
-	//getting the difference for lat and lon
-	double dlat = (lat2 - lat1);
-	double dlon = (lon2 - lon1);
-
-	//math
-	double a = pow(sin(dlat/2), 2) + cos(lat1) * cos(lat2) * pow(sin(dlon/2), 2);
-	double b = 2 * atan2(sqrt(a), sqrt(1-a));
-	return EARTH_RAD * b;
-}
