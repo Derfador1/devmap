@@ -341,11 +341,11 @@ struct llist *extraction(char * argv[])
 			data->source_dev_id = stuff->source_device_id;
 
 			if(test) {
-				printf("add\n");
+				//printf("add\n");
 				ll_add(&test, data);
 			}
 			else {
-				printf("create\n");
+				//printf("create\n");
 				test = ll_create(data);				
 			}
 		}
@@ -355,7 +355,7 @@ struct llist *extraction(char * argv[])
 			data->altitude = 0;
 		}
 
-		printf("Count:%d Start:%d\n", count, *start);
+		//printf("Count:%d Start:%d\n", count, *start);
 
 		free(stuff);
 		free(ver);
@@ -373,17 +373,15 @@ struct llist *extraction(char * argv[])
 graph *ll_to_graph(graph *g, struct llist *l)
 {
 
-	while(l) { //slow loop
+	while(l) {
 		struct llist *tmp = l->next;
 		graph_add_node(g, l->data);
-		while(tmp) { //fast loop
+		while(tmp) {
 			//graph_add_edge(g, l, tmp, weight(from haversine));
-			printf("tmp loop\n");
 			tmp = tmp->next;
 		}
 		l = l->next;
 	}
-	//might need to ll_destroy the tmp
 	return g;
 }
 
@@ -392,11 +390,16 @@ void print_item(const void *data, bool is_node)
 {
 	if(is_node) {
 		struct device *print = (struct device *)data;
-		printf("Longitude %lf\n", print->longitude);
-		printf("Latitude %lf\n", print->latitude);
+		printf("Lon : %lf\n", print->longitude);
+		printf("Lat : %lf\n", print->latitude);
 		printf("Altitude %f\n", print->altitude);
 		printf("Src_id %d\n", print->source_dev_id);
-	} else {
+		if(!(print->battery_power < .001 || print->battery_power > 100.001)) {
+			printf("Battery Power %.02lf%%\n", print->battery_power);
+		}
+		printf("\n");
+	} 
+	else {
 		printf(u8" → %d", *(int *)data);
 	}
 }
@@ -652,9 +655,9 @@ int gps_decode(struct device *data, int *start, unsigned char *buf, int counter)
 
 	data->altitude = (gps.fields.alt * 6);
 	
-	(*start)++; //remove this to make new solutions work with proper byte count
+	//(*start)++; //remove this to make new solutions work with proper byte count
 
-	*start = *start + 3; //remove + 3
+	//*start = *start + 3; //remove + 3
 
 	return 2;
 }
