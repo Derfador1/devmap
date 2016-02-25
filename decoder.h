@@ -115,13 +115,13 @@ int bit_seperation(struct meditrik *medi, unsigned char *buf, unsigned int *type
 
 int field_check(struct device *data, unsigned int *type_pt, unsigned char *buf, int *start, unsigned int *total_length);
 
-int status_decode(struct device *data, int *start, unsigned char *buf, int counter, int excess_headers);
+int status_decode(struct device *data, int *start, unsigned char *buf, int counter);
 
-int command_decode(int *start, unsigned char * buf, int excess_headers);
+int command_decode(int *start, unsigned char * buf);
 
-int gps_decode(struct device *data, int *start, unsigned char *buf, int counter, int excess_headers);
+int gps_decode(struct device *data, int *start, unsigned char *buf, int counter);
 
-int message_decode(int *start, unsigned char *buf, unsigned int *total_length, int excess_headers);
+int message_decode(int *start, unsigned char *buf, unsigned int *total_length);
 
 int extract_ver(struct ipv4 *ver, int *start, unsigned char *buf);
 
