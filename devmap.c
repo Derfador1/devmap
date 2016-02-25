@@ -57,9 +57,17 @@ int main(int argc, char *argv[])
 	}
 
 	printf("\n");
+	
+	/*
+	graph stuff
+	graph *final_g = graph_create();
+	ll_to_graph(final_g, final_ll);
+	//graph_print(g, print_item);
+	*/
 
 	ll_print(final_ll);
 	ll_destroy(final_ll);
+	
 }
 
 //this code was taken from http://stackoverflow.com/questions/26446308/issues-with-a-result-from-calculating-latitude-longitude-from-haversine-formula
