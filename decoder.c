@@ -1,5 +1,4 @@
 #include "decoder.h"
-#include "dijkstra.h"
 #include "graph/graph.h"
 #include <math.h>
 
@@ -137,7 +136,6 @@ struct llist *extraction(char * argv[])
 		if(src_port != 57005 || dst_port != 57005) {
 			printf("This is a malformed packet\n");
 			*start = *start + *total_length - medi_header;
-			//printf("Count:%d Start1:%d\n", count, *start);
 			free(data); //the hell? WHY
 			goto END;
 		}
@@ -210,30 +208,57 @@ double haversine(double lat1, double lat2, double lon1, double lon2, float alt1,
 	double a = pow(sin(dlat/2), 2) + cos(lat1) * cos(lat2) * pow(sin(dlon/2), 2);
 	double b = 2 * atan2(sqrt(a), sqrt(1-a));
 	double d = EARTH_RAD * b;
-	//return d;
 
 	float temp = alt1 - alt2;	
 	double distance = sqrt(d*d + temp*temp);
 
 	return distance;
-
 }
 
 graph *ll_to_graph(graph *g, struct llist *l)
 {
+	struct llist *tmp = l;
+	while(l) {
+		graph_add_node(g, l->data);
+		l = l->next;
+	}
+
+	l = tmp;
 	double result = 0;
 	while(l) {
-		struct llist *tmp = l->next;
-		graph_add_node(g, l->data);
+		tmp = l->next;
 		while(tmp) {
 			const struct device *tmp_l = l->data;
 			const struct device *tmp2 = tmp->data;
 			result = haversine(tmp_l->latitude, tmp2->latitude, tmp_l->longitude, tmp2->longitude, tmp_l->altitude, tmp2->altitude);
-			//printf("Actual Result: %f\n", result);
 			if(result > 1.25 && result < 5.00) {
-				//printf("Result: %f\n", result);
-				graph_add_edge(g, tmp_l, tmp2, result);
+				printf("Result: %f\n", result);
+				printf("%s\n", graph_add_edge(g, tmp_l, tmp2, result)? "true":"false");
 			}
+			tmp = tmp->next;
+		}
+		l = l->next;
+	}
+	
+	printf("Edgecount: %zu\n", graph_edge_count(g));
+	return g;
+}
+
+graph *graph_copy(graph *g, struct llist *l) 
+{
+	while(l) {
+		struct llist *tmp = l->next;
+		//printf("tmp : %p\nl->next : %p\n", tmp, l->next);
+		while(tmp) {
+			const struct device *tmp1 = l->data;
+			const struct device *tmp2 = tmp->data;
+			struct llist *path = dijkstra_path(g, tmp1, tmp2);
+			//printf("%p\n", path);
+			if(path) {
+				printf("here\n");
+			}
+			print_path(path);
+			ll_disassemble(path);
 			tmp = tmp->next;
 		}
 		l = l->next;
@@ -242,17 +267,10 @@ graph *ll_to_graph(graph *g, struct llist *l)
 	return g;
 }
 
-graph *graph_copy(graph *g) 
-{
-	graph *tmp = g;
-
-	return tmp;	
-} 
-
-
 void print_item(const void *data, bool is_node)
 {
 	if(is_node) {
+		//dprintf("data: ");
 		struct device *print = (struct device *)data;
 		printf("Lon : %lf\n", print->longitude);
 		printf("Lat : %lf\n", print->latitude);
