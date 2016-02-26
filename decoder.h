@@ -9,6 +9,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "llist.h"
+#include "dijkstra.h"
 #include "graph/graph.h"
 #define SIZE 1500
 #define EARTH_RAD 6378
@@ -136,7 +137,7 @@ void ll_print(struct llist *test);
 
 graph *ll_to_graph(graph *g, struct llist *l);
 
-graph *graph_copy(graph *g);
+graph *graph_copy(graph *g, struct llist *l);
 
 double haversine(double lat1, double lat2, double lon1, double lon2, float alt1, float alt2);
 
