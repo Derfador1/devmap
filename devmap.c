@@ -60,8 +60,9 @@ int main(int argc, char *argv[])
 	graph_print(final_g, print_item);
 
 	printf("Graph print2: \n");
-	graph *tmp_g = graph_copy(final_g);
-	graph_print(tmp_g, print_item);
+	//graph *tmp_g = graph_copy(final_g, );
+	graph_copy(final_g, final_ll);
+	//graph_print(tmp_g, print_item);
 
 	ll_destroy(final_ll);
 
