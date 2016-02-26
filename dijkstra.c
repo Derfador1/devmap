@@ -1,4 +1,5 @@
 #include "dijkstra.h"
+#include "graph/graph.h"
 
 int pq_compare(const void *a, const void *b)
 {
@@ -23,6 +24,9 @@ struct pqueue_node *__make_node(const void *data, int priority)
 		return NULL;
 	}
 	pqn->data = data;
+
+	//printf("%p\n", data);
+
 	pqn->priority = priority;
 
 	return pqn;
@@ -48,6 +52,8 @@ struct llist *dijkstra_path(const graph *g, const void *from, const void *to)
 	struct pqueue_node *start =__make_node(from, 0);
 	heap_add(to_process, start);
 
+	//printf("from: %p\nto : %p\n", from, to);
+
 	hash *visited = hash_create();
 	struct visited_node *first = __make_vnode(0, start, NULL);
 	hash_insert(visited, from, first);
@@ -55,15 +61,18 @@ struct llist *dijkstra_path(const graph *g, const void *from, const void *to)
 	while(!heap_is_empty(to_process)) {
 		struct pqueue_node *curr = heap_remove_min(to_process);
 
+		//printf("Curr %p\n", curr->data);
+		//printf("to %p\n", to);
+
 		if(curr->data == to) {
 			free(curr);
+			printf("found\n");
 			goto FOUND;
 		}
 
 		struct llist *adjacencies = graph_adjacent_to(g, curr->data);
 		struct llist *check = adjacencies;
 		while(check) {
-
 			int dist = curr->priority +
 				graph_edge_weight(g, curr->data, check->data);
 
