@@ -312,8 +312,10 @@ struct llist *extraction(char * argv[])
 			printf("This is a malformed packet\n");
 			*start = *start + *total_length - medi_header;
 			printf("Count:%d Start1:%d\n", count, *start);
-
-			goto END;
+			free(stuff);
+			free(ver);
+			free(data); //the hell? WHY
+			continue;
 		}
 
 		/*
@@ -358,9 +360,9 @@ struct llist *extraction(char * argv[])
 
 		printf("Count:%d Start:%d\n", count, *start);
 
-END:
 		free(stuff);
 		free(ver);
+
 	}
 
 	free(buf);
