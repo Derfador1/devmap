@@ -132,9 +132,11 @@ void print_item(const void *data, bool is_node);
 
 void print_path(const struct llist *path);
 
-void ll_print(struct llist *test); //move to devmap.h
+void ll_print(struct llist *test);
 
 graph *ll_to_graph(graph *g, struct llist *l);
+
+graph *graph_copy(graph *g);
 
 double haversine(double lat1, double lat2, double lon1, double lon2, float alt1, float alt2);
 
