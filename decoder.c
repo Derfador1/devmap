@@ -212,8 +212,8 @@ double haversine(double lat1, double lat2, double lon1, double lon2, float alt1,
 	double d = EARTH_RAD * b;
 	//return d;
 
-	float temp = fabsf(alt1 - alt2);	
-	double distance = sqrt(d * d + temp);
+	float temp = alt1 - alt2;	
+	double distance = sqrt(d * d + temp*temp);
 	//move this check to ll_to_graph
 
 	return distance;
@@ -230,8 +230,9 @@ graph *ll_to_graph(graph *g, struct llist *l)
 			const struct device *tmp_l = l->data;
 			const struct device *tmp2 = tmp->data;
 			result = haversine(tmp_l->latitude, tmp2->latitude, tmp_l->longitude, tmp2->longitude, tmp_l->altitude, tmp2->altitude);
+			//printf("Actual Result: %f\n", result);
 			if(result > 1.25 && result < 5.00) {
-				printf("Result: %f\n", result);
+				//printf("Result: %f\n", result);
 				graph_add_edge(g, tmp_l, tmp2, result);
 			}
 			tmp = tmp->next;
