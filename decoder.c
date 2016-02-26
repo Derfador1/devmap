@@ -228,13 +228,14 @@ graph *ll_to_graph(graph *g, struct llist *l)
 	while(l) {
 		tmp = l->next;
 		while(tmp) {
-			const struct device *tmp_l = l->data;
+			const struct device *tmp1 = l->data;
 			const struct device *tmp2 = tmp->data;
-			result = haversine(tmp_l->latitude, tmp2->latitude, tmp_l->longitude, tmp2->longitude, tmp_l->altitude, tmp2->altitude);
+			result = haversine(tmp1->latitude, tmp2->latitude, tmp1->longitude, tmp2->longitude, tmp1->altitude, tmp2->altitude);
 			if(result > 1.25 && result < 5.00) {
 				printf("Result: %f\n", result);
 				//printf("%s\n", graph_add_edge(g, tmp_l, tmp2, result)? "true":"false");
-				graph_add_edge(g, tmp_l, tmp2, result);
+				graph_add_edge(g, tmp1, tmp2, result);
+				graph_add_edge(g, tmp2, tmp2, result);
 			}
 			tmp = tmp->next;
 		}
@@ -271,15 +272,14 @@ graph *graph_copy(graph *g, struct llist *l)
 void print_item(const void *data, bool is_node)
 {
 	if(is_node) {
-		//dprintf("data: ");
 		struct device *print = (struct device *)data;
-		printf("Lon : %lf\n", print->longitude);
-		printf("Lat : %lf\n", print->latitude);
-		printf("Altitude %f\n", print->altitude);
+		//printf("Lon : %lf\n", print->longitude);
+		//printf("Lat : %lf\n", print->latitude);
+		//printf("Altitude %f\n", print->altitude);
 		printf("Src_id %d\n", print->source_dev_id);
-		if(!(print->battery_power < .001 || print->battery_power > 100.001)) {
-			printf("Battery Power %.02lf%%\n", print->battery_power);
-		}
+		//if(!(print->battery_power < .001 || print->battery_power > 100.001)) {
+		//	printf("Battery Power %.02lf%%\n", print->battery_power);
+		//}
 		printf("\n");
 	} 
 	else {
