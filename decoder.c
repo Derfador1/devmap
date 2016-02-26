@@ -213,8 +213,7 @@ double haversine(double lat1, double lat2, double lon1, double lon2, float alt1,
 	//return d;
 
 	float temp = alt1 - alt2;	
-	double distance = sqrt(d * d + temp*temp);
-	//move this check to ll_to_graph
+	double distance = sqrt(d*d + temp*temp);
 
 	return distance;
 
@@ -242,6 +241,13 @@ graph *ll_to_graph(graph *g, struct llist *l)
 	printf("\n");
 	return g;
 }
+
+graph *graph_copy(graph *g) 
+{
+	graph *tmp = g;
+
+	return tmp;	
+} 
 
 
 void print_item(const void *data, bool is_node)
