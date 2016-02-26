@@ -10,7 +10,7 @@ LDFLAGS+=-Ldatastructures/llist -Ldatastructures/hash -Ldatastructures/queue -Ld
 
 LDLIBS+=-lm
 
-devmap: devmap.o decoder.o datastructures/llist/llist.o datastructures/hash/hash.o datastructures/queue/ll_queue.o datastructures/heap/heap.o datastructures/graph/graph.o
+devmap: devmap.o decoder.o datastructures/llist/llist.o datastructures/hash/hash.o datastructures/queue/ll_queue.o datastructures/heap/heap.o datastructures/graph/graph.o dijkstra.o
 
 profile:CFLAGS+=-pg
 profile:LDFLAGS+=-pg
