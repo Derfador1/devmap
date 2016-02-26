@@ -233,13 +233,15 @@ graph *ll_to_graph(graph *g, struct llist *l)
 			result = haversine(tmp_l->latitude, tmp2->latitude, tmp_l->longitude, tmp2->longitude, tmp_l->altitude, tmp2->altitude);
 			if(result > 1.25 && result < 5.00) {
 				printf("Result: %f\n", result);
-				printf("%s\n", graph_add_edge(g, tmp_l, tmp2, result)? "true":"false");
+				//printf("%s\n", graph_add_edge(g, tmp_l, tmp2, result)? "true":"false");
+				graph_add_edge(g, tmp_l, tmp2, result);
 			}
 			tmp = tmp->next;
 		}
 		l = l->next;
 	}
-	
+	printf("\n");	
+
 	printf("Edgecount: %zu\n", graph_edge_count(g));
 	return g;
 }
@@ -253,11 +255,10 @@ graph *graph_copy(graph *g, struct llist *l)
 			const struct device *tmp1 = l->data;
 			const struct device *tmp2 = tmp->data;
 			struct llist *path = dijkstra_path(g, tmp1, tmp2);
-			//printf("%p\n", path);
 			if(path) {
 				printf("here\n");
 			}
-			print_path(path);
+			//print_path(path);
 			ll_disassemble(path);
 			tmp = tmp->next;
 		}
