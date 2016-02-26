@@ -252,6 +252,7 @@ struct llist *extraction(char * argv[])
 	int ipv4 = 20;
 	int ipv6 = 40;
 	int udp = 8;
+	int medi_header = 12;
 
 	int count = 0;
 
@@ -303,18 +304,17 @@ struct llist *extraction(char * argv[])
 		printf("SRC Port: %d\n", src_port);
 		printf("DST Port: %d\n", dst_port);
 
-		/*
-		if(src_port != 57005 || dst_port != 57005) {
-			printf("This is a malformed packet\n");
-			free(stuff);
-			free(ver);
-			goto END;
-		}
-		*/
-
 		*start += udp;
 
 		bit_seperation(stuff, buf, type_pt, total_length, start);
+
+		if(src_port != 57005 || dst_port != 57005) {
+			printf("This is a malformed packet\n");
+			*start = *start + *total_length - medi_header;
+			printf("Count:%d Start1:%d\n", count, *start);
+
+			goto END;
+		}
 
 		/*
 		if(*type_pt != 2) {
@@ -356,8 +356,9 @@ struct llist *extraction(char * argv[])
 			data->altitude = 0;
 		}
 
-		//printf("Count:%d Start:%d\n", count, *start);
+		printf("Count:%d Start:%d\n", count, *start);
 
+END:
 		free(stuff);
 		free(ver);
 	}
