@@ -59,9 +59,7 @@ int main(int argc, char *argv[])
 	printf("\nGraph print: \n");
 	graph_print(final_g, print_item);
 
-	//graph *tmp_g = graph_copy(final_g, );
-	graph_copy(final_g, final_ll);
-	//graph_print(tmp_g, print_item);
+	//graph_copy(final_g, final_ll);
 
 	ll_destroy(final_ll);
 
