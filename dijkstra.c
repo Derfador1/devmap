@@ -25,7 +25,6 @@ struct pqueue_node *__make_node(const void *data, int priority)
 	}
 	pqn->data = data;
 
-	//printf("%p\n", data);
 
 	pqn->priority = priority;
 
@@ -52,21 +51,19 @@ struct llist *dijkstra_path(const graph *g, const void *from, const void *to)
 	struct pqueue_node *start =__make_node(from, 0);
 	heap_add(to_process, start);
 
-	//printf("from: %p\nto : %p\n", from, to);
+	printf("maybe\n");
 
 	hash *visited = hash_create();
 	struct visited_node *first = __make_vnode(0, start, NULL);
-	hash_insert(visited, from, first);
+
+	hash_insert(visited, (intptr_t)from, first); //segfault
+
 
 	while(!heap_is_empty(to_process)) {
 		struct pqueue_node *curr = heap_remove_min(to_process);
 
-		//printf("Curr %p\n", curr->data);
-		//printf("to %p\n", to);
-
 		if(curr->data == to) {
 			free(curr);
-			printf("found\n");
 			goto FOUND;
 		}
 
@@ -76,16 +73,16 @@ struct llist *dijkstra_path(const graph *g, const void *from, const void *to)
 			int dist = curr->priority +
 				graph_edge_weight(g, curr->data, check->data);
 
-			if(!hash_exists(visited, check->data)) {
+			if(!hash_exists(visited, (intptr_t)check->data)) {
 				struct pqueue_node *pq_to_add =__make_node(check->data, dist);
 
 				struct visited_node *next_node =
 					__make_vnode(dist, pq_to_add, curr->data);
 
-				hash_insert(visited, check->data, next_node);
+				hash_insert(visited, (intptr_t)check->data, next_node);
 				heap_add(to_process, pq_to_add);
 			} else {
-				struct visited_node *found = hash_fetch(visited, check->data);
+				struct visited_node *found = hash_fetch(visited, (intptr_t)check->data);
 
 				if(dist < found->distance) {
 					found->distance = dist;
@@ -109,9 +106,9 @@ FOUND:
 	heap_destroy(to_process);
 
 	struct llist *path = ll_create(to);
-	while(((struct visited_node *)hash_fetch(visited, path->data))->prev) {
+	while(((struct visited_node *)hash_fetch(visited, (intptr_t)path->data))->prev) {
 		ll_add(&path,
-				((struct visited_node *)hash_fetch(visited, path->data))->prev);
+				((struct visited_node *)hash_fetch(visited, (intptr_t)path->data))->prev);
 	}
 
 	hash_destroy(visited);
@@ -124,7 +121,7 @@ struct llist *graph_path(const graph *g, const void *from, const void *to)
 	hash *visited = hash_create();
 	queue *to_process = queue_create();
 
-	hash_insert(visited, from, NULL);
+	hash_insert(visited, (intptr_t)from, NULL);
 	queue_enqueue(to_process, from);
 
 	while(!queue_is_empty(to_process)) {
@@ -133,8 +130,8 @@ struct llist *graph_path(const graph *g, const void *from, const void *to)
 		struct llist *adjacencies = graph_adjacent_to(g, curr);
 		struct llist *check = adjacencies;
 		while(check) {
-			if(!hash_exists(visited, check->data)) {
-				hash_insert(visited, check->data, curr);
+			if(!hash_exists(visited, (intptr_t)check->data)) {
+				hash_insert(visited, (intptr_t)check->data, curr);
 				queue_enqueue(to_process, check->data);
 				if(check->data == to) {
 					ll_disassemble(adjacencies);
@@ -156,8 +153,8 @@ FOUND:
 	queue_disassemble(to_process);
 
 	struct llist *path = ll_create(to);
-	while(hash_fetch(visited, path->data)) {
-		ll_add(&path, hash_fetch(visited, path->data));
+	while(hash_fetch(visited, (intptr_t)path->data)) {
+		ll_add(&path, hash_fetch(visited, (intptr_t)path->data));
 	}
 
 	hash_disassemble(visited);
