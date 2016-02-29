@@ -76,8 +76,11 @@ bool is_adjacent(const graph *g, const struct device *a, const struct device *b)
 		if(map->data == a) {
 			struct edge *edges = map->edges;
 
-			if(edges->to->data == b) {
-				return true;
+			while(edges) {
+				if(edges->to->data == b) {
+					return true;
+				}
+				edges = edges->next;
 			}
 		}
 		map = map->next;
