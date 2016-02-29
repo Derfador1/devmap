@@ -50,6 +50,15 @@ void ll_print(struct llist *test)
 	}
 }
 
+void something_print(int data, bool is_node)
+{
+	if(is_node) {
+		printf("%d", data);
+	} else {
+		printf(u8" → %d", data);
+	}
+}
+
 struct llist *extraction(char * argv[])
 {
 	size_t file_count = 1;
@@ -235,7 +244,7 @@ graph *ll_to_graph(graph *g, struct llist *l)
 				printf("Result: %f\n", result);
 				//printf("%s\n", graph_add_edge(g, tmp_l, tmp2, result)? "true":"false");
 				graph_add_edge(g, tmp1, tmp2, result);
-				graph_add_edge(g, tmp2, tmp2, result);
+				graph_add_edge(g, tmp2, tmp1, result);
 			}
 			tmp = tmp->next;
 		}
@@ -247,7 +256,7 @@ graph *ll_to_graph(graph *g, struct llist *l)
 	return g;
 }
 
-graph *graph_copy(graph *g, struct llist *l) 
+graph *surballes(graph *g, struct llist *l) 
 {
 	while(l) {
 		struct llist *tmp = l->next;
@@ -259,7 +268,6 @@ graph *graph_copy(graph *g, struct llist *l)
 			if(path) {
 				printf("here\n");
 			}
-			//print_path(path);
 			ll_disassemble(path);
 			tmp = tmp->next;
 		}
@@ -271,38 +279,13 @@ graph *graph_copy(graph *g, struct llist *l)
 
 void print_item(const void *data, bool is_node)
 {
+	struct device *print = (struct device *)data;
 	if(is_node) {
-		struct device *print = (struct device *)data;
-		//printf("Lon : %lf\n", print->longitude);
-		//printf("Lat : %lf\n", print->latitude);
-		//printf("Altitude %f\n", print->altitude);
-		printf("Src_id %d\n", print->source_dev_id);
-		//if(!(print->battery_power < .001 || print->battery_power > 100.001)) {
-		//	printf("Battery Power %.02lf%%\n", print->battery_power);
-		//}
-		printf("\n");
+		printf("%d", print->source_dev_id);
 	} 
 	else {
-		//printf(u8" → %d", *(int *)data);
+		printf(" → %d", print->source_dev_id);
 	}
-}
-
-void print_path(const struct llist *path)
-{
-	const struct llist *tmp = path;
-	while(tmp) {
-		const struct device *print = tmp->data; 
-		printf("Lon : %lf\n", print->longitude);
-		printf("Lat : %lf\n", print->latitude);
-		printf("Altitude %f\n", print->altitude);
-		printf("Src_id %d\n", print->source_dev_id);
-		if(!(print->battery_power < .001 || print->battery_power > 100.001)) {
-			printf("Battery Power %.02lf%%\n", print->battery_power);
-		}
-		printf(" → ");
-		tmp = tmp->next;
-	}
-	printf("\n");
 }
 
 int extract_ver(struct ipv4 *ver, int *start, unsigned char *buf)
