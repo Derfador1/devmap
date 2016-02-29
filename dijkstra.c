@@ -25,7 +25,6 @@ struct pqueue_node *__make_node(const void *data, int priority)
 	}
 	pqn->data = data;
 
-	//printf("%p\n", data);
 
 	pqn->priority = priority;
 
@@ -52,21 +51,19 @@ struct llist *dijkstra_path(const graph *g, const void *from, const void *to)
 	struct pqueue_node *start =__make_node(from, 0);
 	heap_add(to_process, start);
 
-	//printf("from: %p\nto : %p\n", from, to);
+	printf("maybe\n");
 
 	hash *visited = hash_create();
 	struct visited_node *first = __make_vnode(0, start, NULL);
-	hash_insert(visited, from, first);
+
+	hash_insert(visited, from, first); //segfault
+
 
 	while(!heap_is_empty(to_process)) {
 		struct pqueue_node *curr = heap_remove_min(to_process);
 
-		//printf("Curr %p\n", curr->data);
-		//printf("to %p\n", to);
-
 		if(curr->data == to) {
 			free(curr);
-			printf("found\n");
 			goto FOUND;
 		}
 

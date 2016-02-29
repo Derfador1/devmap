@@ -11,6 +11,7 @@
 #include "llist.h"
 #include "dijkstra.h"
 #include "graph/graph.h"
+#include "device.h"
 #define SIZE 1500
 #define EARTH_RAD 6378
 
@@ -100,14 +101,6 @@ union battery {
 union gps_header{
 	struct gps fields;
 	unsigned char degrees[20];
-};
-
-struct device {
-	double battery_power;
-	double longitude;
-	double latitude;
-	float altitude;
-	unsigned int source_dev_id; 	
 };
 
 

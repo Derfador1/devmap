@@ -39,13 +39,7 @@ void ll_print(struct llist *test)
 
 	while(tmp) {
 		const struct device *data = tmp->data;
-		printf("Lon : %lf\n", data->longitude);
-		printf("Lat : %lf\n", data->latitude);
-		printf("Altitude %f\n", data->altitude);
 		printf("Src_id %d\n", data->source_dev_id);
-		if(!(data->battery_power < .001 || data->battery_power > 100.001)) {
-			printf("Battery Power %.02lf%%\n", data->battery_power);
-		}
 		tmp = tmp->next;
 	}
 }
@@ -82,7 +76,7 @@ bool is_adjacent(const graph *g, const struct device *a, const struct device *b)
 				}
 				edges = edges->next;
 			}
-			return false;
+			//return false;
 		}
 		map = map->next;
 	}
@@ -296,15 +290,13 @@ graph *surballes(graph *g, struct llist *l)
 		while(tmp) {
 			const struct device *tmp1 = l->data;
 			const struct device *tmp2 = tmp->data;
-			//if they arent adjeacent then run dijkstra
+			//if they arent adjacent then run dijkstra
 			if(!is_adjacent(g, tmp1, tmp2)) {
-				printf("stuff\n");
 				path = dijkstra_path(g, tmp1, tmp2);
-
-				printf("%p\n", path);
+				ll_print(path);
+				ll_disassemble(path);
+				//printf("%p\n", path);
 			}
-
-			ll_disassemble(path);
 			tmp = tmp->next;
 		}
 		l = l->next;
