@@ -82,7 +82,7 @@ bool is_adjacent(const graph *g, const struct device *a, const struct device *b)
 				}
 				edges = edges->next;
 			}
-			return false;
+			//return false;
 		}
 		map = map->next;
 	}
@@ -299,7 +299,7 @@ graph *surballes(graph *g, struct llist *l)
 			//if they arent adjeacent then run dijkstra
 			if(!is_adjacent(g, tmp1, tmp2)) {
 				printf("stuff\n");
-				path = dijkstra_path(g, tmp1, tmp2);
+				path = dijkstra_path(g, tmp1->source_dev_id, tmp2->source_dev_id);
 
 				printf("%p\n", path);
 			}
