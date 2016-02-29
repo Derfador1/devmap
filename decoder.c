@@ -59,6 +59,34 @@ void something_print(int data, bool is_node)
 	}
 }
 
+
+bool is_adjacent(const graph *g, const struct device *a, const struct device *b)
+{
+	if(!g) {
+		return false;
+	}
+
+	struct node *map = g->nodes;
+
+	if(!map) {
+		return false;
+	}
+
+	while(map) {
+		if(map->data == a) {
+			struct edge *edges = map->edges;
+
+			if(edges->to->data == b) {
+				return true;
+			}
+		}
+		map = map->next;
+	}
+
+	return false;
+}
+
+
 struct llist *extraction(char * argv[])
 {
 	size_t file_count = 1;
@@ -240,9 +268,8 @@ graph *ll_to_graph(graph *g, struct llist *l)
 			const struct device *tmp1 = l->data;
 			const struct device *tmp2 = tmp->data;
 			result = haversine(tmp1->latitude, tmp2->latitude, tmp1->longitude, tmp2->longitude, tmp1->altitude, tmp2->altitude);
-			if(result > 1.25 && result < 5.00) {
+			if(result > 1.25 && result < 16.4042) {
 				printf("Result: %f\n", result);
-				//printf("%s\n", graph_add_edge(g, tmp_l, tmp2, result)? "true":"false");
 				graph_add_edge(g, tmp1, tmp2, result);
 				graph_add_edge(g, tmp2, tmp1, result);
 			}
@@ -258,16 +285,21 @@ graph *ll_to_graph(graph *g, struct llist *l)
 
 graph *surballes(graph *g, struct llist *l) 
 {
+	struct llist *path = NULL;
+
 	while(l) {
 		struct llist *tmp = l->next;
-		//printf("tmp : %p\nl->next : %p\n", tmp, l->next);
 		while(tmp) {
 			const struct device *tmp1 = l->data;
 			const struct device *tmp2 = tmp->data;
-			struct llist *path = dijkstra_path(g, tmp1, tmp2);
-			if(path) {
-				printf("here\n");
+			//if they arent adjeacent then run dijkstra
+			if(!is_adjacent(g, tmp1, tmp2)) {
+				printf("stuff\n");
+				path = dijkstra_path(g, tmp1, tmp2);
+
+				printf("%p\n", path);
 			}
+
 			ll_disassemble(path);
 			tmp = tmp->next;
 		}
@@ -281,7 +313,7 @@ void print_item(const void *data, bool is_node)
 {
 	struct device *print = (struct device *)data;
 	if(is_node) {
-		printf("%d", print->source_dev_id);
+		printf("\n%d", print->source_dev_id);
 	} 
 	else {
 		printf(" → %d", print->source_dev_id);
@@ -522,12 +554,15 @@ int gps_decode(struct device *data, int *start, unsigned char *buf, int counter)
 
 	//fprintf(stdout, "Altitude: %f ft\n", gps.fields.alt * 6);
 
-	data->longitude = gps.fields.longs;
-
 	data->latitude = gps.fields.lat;
+
+	data->longitude = gps.fields.longs;
 
 	data->altitude = (gps.fields.alt * 6);
 	
+	printf("%lf\n", data->latitude);
+	printf("%lf\n", data->longitude);
+	printf("%f\n", data->altitude);
 	//(*start)++; //remove this to make new solutions work with proper byte count
 
 	//*start = *start + 3; //remove + 3
