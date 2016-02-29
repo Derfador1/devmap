@@ -58,8 +58,9 @@ int main(int argc, char *argv[])
 	ll_to_graph(final_g, final_ll);
 	printf("\nGraph print: \n");
 	graph_print(final_g, print_item);
+	printf("\n");
 
-	//graph_copy(final_g, final_ll);
+	surballes(final_g, final_ll);
 
 	ll_destroy(final_ll);
 
