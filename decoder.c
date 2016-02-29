@@ -290,14 +290,13 @@ graph *surballes(graph *g, struct llist *l)
 		while(tmp) {
 			const struct device *tmp1 = l->data;
 			const struct device *tmp2 = tmp->data;
-			//if they arent adjeacent then run dijkstra
+			//if they arent adjacent then run dijkstra
 			if(!is_adjacent(g, tmp1, tmp2)) {
 				path = dijkstra_path(g, tmp1, tmp2);
 				ll_print(path);
-				printf("%p\n", path);
+				ll_disassemble(path);
+				//printf("%p\n", path);
 			}
-
-			ll_disassemble(path);
 			tmp = tmp->next;
 		}
 		l = l->next;
