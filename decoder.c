@@ -82,6 +82,7 @@ bool is_adjacent(const graph *g, const struct device *a, const struct device *b)
 				}
 				edges = edges->next;
 			}
+			return false;
 		}
 		map = map->next;
 	}
