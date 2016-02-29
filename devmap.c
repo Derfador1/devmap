@@ -55,7 +55,8 @@ void parse_args(int argc, char *argv[], int *tmp_file_count, double *battery_lif
 		switch (c) {
 			case 'p':
 				if (optarg != NULL) {
-					char *ptr; *battery_life = strtol(optarg, & ptr, 10);
+					char *ptr; 
+					*battery_life = strtol(optarg, & ptr, 10);
 					if (*ptr != '\0') {
 						fprintf(stderr, "Error1: A number must be entered with -p usage:\n");
 						fprintf(stderr, "Usage: %s -p <int value 0-100> <file.pcap>\n", argv[0]);
