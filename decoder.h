@@ -138,6 +138,4 @@ void something_print(int data, bool is_node);
 
 bool is_adjacent(const graph *g, const struct device *a, const struct device *b);
 
-struct llist *ll_copy(struct llist *list);
-
 #endif
