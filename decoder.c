@@ -39,7 +39,7 @@ void ll_print(struct llist *test)
 
 	while(tmp) {
 		const struct device *data = tmp->data;
-		printf("Src_id %d\n", data->source_dev_id);
+		printf(u8"%d → ", data->source_dev_id);
 		tmp = tmp->next;
 	}
 }
@@ -292,10 +292,11 @@ graph *surballes(graph *g, struct llist *l)
 			const struct device *tmp2 = tmp->data;
 			//if they arent adjacent then run dijkstra
 			if(!is_adjacent(g, tmp1, tmp2)) {
+				int weight = graph_edge_weight(g, tmp1, tmp2);
+				printf("Weight: %d\n", weight);
 				path = dijkstra_path(g, tmp1, tmp2);
 				ll_print(path);
 				ll_disassemble(path);
-				//printf("%p\n", path);
 			}
 			tmp = tmp->next;
 		}
