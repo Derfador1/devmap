@@ -310,7 +310,7 @@ bool surballes(graph *g, struct llist *l)
 				}
 
 
-				graph_remove_edge(g, tmp1, tmp2);
+				graph_remove_edge(tmp_g, tmp2, tmp1);
 				/*
 				while(path->next) {
 					path = path->next;
