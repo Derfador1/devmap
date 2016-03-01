@@ -58,7 +58,9 @@ int main(int argc, char *argv[])
 	*/
 
 	printf("\nSURBALLES\n");
-	surballes(final_g, final_ll);
+	if(surballes(final_g, final_ll)) {
+		printf("Network satisfies vendor recommendations\n");
+	}
 	printf("\n");
 
 	//ll_destroy(tmp);
