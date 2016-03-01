@@ -287,8 +287,8 @@ graph *ll_to_graph(graph *g, struct llist *l)
 bool surballes(graph *g, struct llist *l) 
 {
 	struct llist *path = NULL;
-	double weight = 0;
-	int path_count = 0;
+	struct llist *path2 = NULL;
+	//double weight = 0;
 
 	while(l) {
 		struct llist *tmp = l->next;
@@ -298,20 +298,35 @@ bool surballes(graph *g, struct llist *l)
 			//if they arent adjacent then run dijkstra
 			if(!is_adjacent(g, tmp1, tmp2)) {
 				printf("Is not Adjacent\n");
-				weight = graph_edge_weight(g, tmp1, tmp2);
-				printf("%d : %d - Weight: %lf\n", tmp1->source_dev_id, tmp2->source_dev_id, weight); //doesnt seem right
-				path = dijkstra_path(g, tmp1, tmp2);
+				graph *tmp_g = graph_copy(g);
+				//weight = graph_edge_weight(tmp_g, tmp1, tmp2);
+				//printf("%d : %d - Weight: %lf\n", tmp1->source_dev_id, tmp2->source_dev_id, weight); //doesnt seem right
+				path = dijkstra_path(tmp_g, tmp1, tmp2);
 				if(path) {
-					path_count++;
 					ll_print(path);
 				}
 				else {
 					return false;
 				}
 
-				graph *tmp_g = graph_copy(g);
+
+				graph_remove_edge(g, tmp1, tmp2);
+				/*
+				while(path->next) {
+					path = path->next;
+					graph_remove_node(tmp_g, path->data);
+				}
+				*/
+
+
+				path2 = dijkstra_path(tmp_g, tmp1, tmp2);
+				printf("\nPath\n");
+				ll_print(path2);
+				printf("\nhere\n");
+
 				graph_disassemble(tmp_g);
 				ll_disassemble(path);
+				ll_disassemble(path2);
 				return true;
 
 			}
