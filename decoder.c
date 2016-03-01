@@ -296,7 +296,6 @@ bool surballes(graph *g, struct llist *l)
 		while(tmp) {
 			const struct device *tmp1 = l->data;
 			const struct device *tmp2 = tmp->data;
-			//if they arent adjacent then run dijkstra
 			if(!is_adjacent(g, tmp1, tmp2)) {
 				printf("Is not Adjacent\n");
 				//weight = graph_edge_weight(tmp_g, tmp1, tmp2);
