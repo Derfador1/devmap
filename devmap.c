@@ -39,11 +39,23 @@ int main(int argc, char *argv[])
 	graph_print(final_g, print_item);
 	printf("\n");
 
+	/*
+	graph *cpy_graph = graph_create();
+
+	cpy_graph = graph_copy(final_g);
+
+	printf("\nGraph print 2: \n");
+	graph_print(cpy_graph, print_item);
+	printf("\n");
+	*/
+
+	printf("SURBALLES\n");
 	surballes(final_g, final_ll);
 
 	ll_destroy(final_ll);
 
 	graph_disassemble(final_g);
+	//graph_disassemble(cpy_graph);
 }
 
 void parse_args(int argc, char *argv[], int *tmp_file_count, double *battery_life)
