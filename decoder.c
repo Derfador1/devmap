@@ -288,6 +288,7 @@ bool surballes(graph *g, struct llist *l)
 {
 	struct llist *path = NULL;
 	struct llist *path2 = NULL;
+	int path_count = 0;
 	//double weight = 0;
 
 	while(l) {
@@ -303,7 +304,9 @@ bool surballes(graph *g, struct llist *l)
 				//printf("%d : %d - Weight: %lf\n", tmp1->source_dev_id, tmp2->source_dev_id, weight); //doesnt seem right
 				path = dijkstra_path(tmp_g, tmp1, tmp2);
 				if(path) {
+					path_count++;
 					ll_print(path);
+					printf("\n");
 				}
 				else {
 					return false;
@@ -320,9 +323,16 @@ bool surballes(graph *g, struct llist *l)
 
 
 				path2 = dijkstra_path(tmp_g, tmp1, tmp2);
-				printf("\nPath\n");
-				ll_print(path2);
-				printf("\nhere\n");
+				if(path2) {
+					path_count++;
+					ll_print(path2);
+					printf("\n");
+				}
+				else {
+					return false;
+				}
+
+				printf("Number of paths found %d\n", path_count);
 
 				graph_disassemble(tmp_g);
 				ll_disassemble(path);
