@@ -130,10 +130,14 @@ void ll_print(struct llist *test);
 
 graph *ll_to_graph(graph *g, struct llist *l);
 
-graph *surballes(graph *g, struct llist *l);
+bool surballes(graph *g, struct llist *l);
 
 double haversine(double lat1, double lat2, double lon1, double lon2, float alt1, float alt2);
 
 void something_print(int data, bool is_node);
+
+bool is_adjacent(const graph *g, const struct device *a, const struct device *b);
+
+struct llist *ll_copy(struct llist *list);
 
 #endif
