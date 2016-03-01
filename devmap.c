@@ -39,23 +39,32 @@ int main(int argc, char *argv[])
 	graph_print(final_g, print_item);
 	printf("\n");
 
+
 	/*
-	graph *cpy_graph = graph_create();
-
-	cpy_graph = graph_copy(final_g);
-
-	printf("\nGraph print 2: \n");
-	graph_print(cpy_graph, print_item);
-	printf("\n");
+	while(final_ll) {
+		struct llist *final_tmp = NULL;
+		final_tmp = final_ll->next;
+		while(final_tmp) {
+			const struct device *tmp1 = final_ll->data;
+			const struct device *tmp2 = final_tmp->data;
+			if(!is_adjacent(final_g, tmp1, tmp2)) {
+				printf("here\n");
+				surballes(final_g, tmp1, tmp2);
+			}
+			final_tmp = final_tmp->next;
+		}
+		final_ll = final_ll->next;
+	}
 	*/
 
-	printf("SURBALLES\n");
+	printf("\nSURBALLES\n");
 	surballes(final_g, final_ll);
+	printf("\n");
 
+	//ll_destroy(tmp);
 	ll_destroy(final_ll);
 
 	graph_disassemble(final_g);
-	//graph_disassemble(cpy_graph);
 }
 
 void parse_args(int argc, char *argv[], int *tmp_file_count, double *battery_life)
