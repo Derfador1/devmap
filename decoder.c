@@ -284,10 +284,11 @@ graph *ll_to_graph(graph *g, struct llist *l)
 	return g;
 }
 
-graph *surballes(graph *g, struct llist *l) 
+bool surballes(graph *g, struct llist *l) 
 {
 	struct llist *path = NULL;
 	double weight = 0;
+	int path_count = 0;
 
 	while(l) {
 		struct llist *tmp = l->next;
@@ -300,8 +301,19 @@ graph *surballes(graph *g, struct llist *l)
 				weight = graph_edge_weight(g, tmp1, tmp2);
 				printf("%d : %d - Weight: %lf\n", tmp1->source_dev_id, tmp2->source_dev_id, weight); //doesnt seem right
 				path = dijkstra_path(g, tmp1, tmp2);
-				ll_print(path);
+				if(path) {
+					path_count++;
+					ll_print(path);
+				}
+				else {
+					return false;
+				}
+
+				graph *tmp_g = graph_copy(g);
+				graph_disassemble(tmp_g);
 				ll_disassemble(path);
+				return true;
+
 			}
 			tmp = tmp->next;
 		}
@@ -310,8 +322,10 @@ graph *surballes(graph *g, struct llist *l)
 	printf("\n");
 	size_t count = graph_node_count(g);
 	printf("Node Count : %zd\n", count);
-	return g;
+	return true;
 }
+
+
 
 void print_item(const void *data, bool is_node)
 {
