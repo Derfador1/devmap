@@ -303,6 +303,8 @@ graph *surballes(graph *g, struct llist *l)
 		l = l->next;
 	}
 	printf("\n");
+	size_t count = graph_node_count(g);
+	printf("Node Count : %zd\n", count);
 	return g;
 }
 
