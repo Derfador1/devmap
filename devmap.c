@@ -61,6 +61,9 @@ int main(int argc, char *argv[])
 	if(surballes(final_g, final_ll)) {
 		printf("Network satisfies vendor recommendations\n");
 	}
+	else {
+		printf("Nodes to be removed!\n");
+	}
 	printf("\n");
 
 	//ll_destroy(tmp);
