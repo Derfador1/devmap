@@ -51,13 +51,10 @@ struct llist *dijkstra_path(const graph *g, const void *from, const void *to)
 	struct pqueue_node *start =__make_node(from, 0);
 	heap_add(to_process, start);
 
-	printf("maybe\n");
-
 	hash *visited = hash_create();
 	struct visited_node *first = __make_vnode(0, start, NULL);
 
-	hash_insert(visited, from, first); //segfault
-
+	hash_insert(visited, from, first); 
 
 	while(!heap_is_empty(to_process)) {
 		struct pqueue_node *curr = heap_remove_min(to_process);
