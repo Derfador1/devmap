@@ -40,6 +40,7 @@ void ll_print(struct llist *test)
 	while(tmp) {
 		const struct device *data = tmp->data;
 		printf(u8"%d → ", data->source_dev_id);
+		//printf("Battery Power %.02lf%%\n", data->battery_power);
 		tmp = tmp->next;
 	}
 }
@@ -212,6 +213,8 @@ struct llist *extraction(char * argv[])
 		}
 
 		//printf("Count:%d Start:%d\n", count, *start);
+		//printf(" → ");
+
 END:
 		free(stuff);
 		free(ver);
@@ -284,6 +287,7 @@ graph *ll_to_graph(graph *g, struct llist *l)
 graph *surballes(graph *g, struct llist *l) 
 {
 	struct llist *path = NULL;
+	double weight = 0;
 
 	while(l) {
 		struct llist *tmp = l->next;
@@ -292,8 +296,9 @@ graph *surballes(graph *g, struct llist *l)
 			const struct device *tmp2 = tmp->data;
 			//if they arent adjacent then run dijkstra
 			if(!is_adjacent(g, tmp1, tmp2)) {
-				int weight = graph_edge_weight(g, tmp1, tmp2);
-				printf("Weight: %d\n", weight);
+				printf("Is not Adjacent\n");
+				weight = graph_edge_weight(g, tmp1, tmp2);
+				printf("%d : %d - Weight: %lf\n", tmp1->source_dev_id, tmp2->source_dev_id, weight); //doesnt seem right
 				path = dijkstra_path(g, tmp1, tmp2);
 				ll_print(path);
 				ll_disassemble(path);
