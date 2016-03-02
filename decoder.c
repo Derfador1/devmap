@@ -290,10 +290,13 @@ bool surballes(graph *tmp_g, const void *from, const void *to)
 	int path_count = 0;
 	size_t count = 0;
 
-	count = graph_node_count(tmp_g);
+	graph *sur_tmp = graph_copy(tmp_g);
+
+	count = graph_node_count(sur_tmp);
 	printf("Node Count : %zd\n", count);
-	path = dijkstra_path(tmp_g, (struct device *)from, (struct device *)to);
+	path = dijkstra_path(sur_tmp, (struct device *)from, (struct device *)to);
 	if(!path) {
+		graph_disassemble(sur_tmp);
 		ll_disassemble(path);
 		return false;
 	}
@@ -301,16 +304,17 @@ bool surballes(graph *tmp_g, const void *from, const void *to)
 	ll_print(path);
 	struct llist *head = path;
 	while(path->next) {
-		graph_remove_edge(tmp_g, path->data, path->next->data);
-		graph_remove_edge(tmp_g, path->next->data, path->data);
+		graph_remove_edge(sur_tmp, path->data, path->next->data);
+		graph_remove_edge(sur_tmp, path->next->data, path->data);
 		path = path->next;
 	}
 	path_count++;
 	printf("\n");
 
-	path = dijkstra_path(tmp_g, (struct device *)from, (struct device *)to);
+	path = dijkstra_path(sur_tmp, (struct device *)from, (struct device *)to);
 
 	if(!path) {
+		graph_disassemble(sur_tmp);
 		ll_disassemble(path);
 		ll_disassemble(head);
 		return false;
@@ -322,18 +326,80 @@ bool surballes(graph *tmp_g, const void *from, const void *to)
 
 	printf("Number of paths found %d\n", path_count);
 
+	graph_disassemble(sur_tmp);
 	ll_disassemble(path);
 	ll_disassemble(head);
 
 	return true;
 }
 
-/*
-void removing(const graph *g, struct llist *l) 
+bool is_vendor_recommended(graph *g, struct llist *l)
 {
+	struct llist *test = l;
 
+	while(l) {
+		struct llist *tmp = l->next;
+		while(tmp) {
+			graph *tmp_g = graph_copy(g);
+			const struct device *tmp1 = l->data;
+			const struct device *tmp2 = tmp->data;
+			if(!is_adjacent(tmp_g, tmp1, tmp2)) {
+				if(surballes(tmp_g, tmp1, tmp2)) {
+					printf("valid\n");
+				}
+				else {
+					printf("not valid\n");
+					graph_print(tmp_g, print_item);
+					graph_disassemble(tmp_g);
+					return false;
+				}
+			}
+			else {
+				//return true;
+			}
+			tmp = tmp->next;
+			graph_disassemble(tmp_g);
+		}
+		l = l->next;
+	}
+	
+	l = test;
+	return true;
 }
-*/
+
+
+void removing(graph *g, struct llist *l) 
+{
+	struct llist *test = l;
+	graph *tmp_g = graph_copy(g);
+	struct path_numb_ll *numb = malloc(sizeof(struct path_numb_ll));
+
+	int number = 0;
+
+	while(l) {
+		struct llist *tmp = l->next;
+		while(tmp) {
+			const struct device *tmp1 = l->data;
+			const struct device *tmp2 = tmp->data;
+
+			if(surballes(tmp_g, tmp1, tmp2)) {
+				numb->numb = number++;
+				printf("%d : %d Number %d\n", tmp1->source_dev_id, tmp2->source_dev_id, number);
+				number = 0;
+			}
+			else {
+				printf("%d : %d Number %d\n", tmp1->source_dev_id, tmp2->source_dev_id, number);
+				graph_remove_node(tmp_g, tmp1);
+			}
+			tmp = tmp->next;
+		}
+		l = l->next;
+	}
+
+	l = test;
+	graph_disassemble(tmp_g);
+	free(numb);
+}
 
 void print_item(const void *data, bool is_node)
 {
