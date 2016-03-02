@@ -44,7 +44,8 @@ int main(int argc, char *argv[])
 		printf("Network satisfies vendor recommendations\n");
 	}
 	else {
-		printf("Nodes to be removed!\n");
+		printf("Network Alterations: \n");
+		removing(final_g, final_ll);
 	}
 	printf("\n");
 
