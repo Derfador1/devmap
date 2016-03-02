@@ -284,106 +284,56 @@ graph *ll_to_graph(graph *g, struct llist *l)
 	return g;
 }
 
-bool surballes(graph *g, struct llist *l) 
+bool surballes(graph *tmp_g, const void *from, const void *to) 
 {
 	struct llist *path = NULL;
-	//struct llist *path2 = NULL;
 	int path_count = 0;
 	size_t count = 0;
-	struct llist *start = l;
-	while(l) {
-		struct llist *tmp = l->next;
-		while(tmp) {
-			const struct device *tmp1 = l->data;
-			const struct device *tmp2 = tmp->data;
-			if(!is_adjacent(g, tmp1, tmp2)) {
-				count = graph_node_count(g);
-				printf("Node Count : %zd\n", count);
-				path = dijkstra_path(g, tmp1, tmp2);
-				graph *tmp_g = graph_copy(g);
-				if(!path) {
-					l = start;
-					graph_disassemble(tmp_g);
-					ll_disassemble(path);
-					return false;
-				}
 
-				ll_print(path);
-				struct llist *head = path;
-				while(path->next) {
-					graph_remove_edge(tmp_g, path->data, path->next->data);
-					graph_remove_edge(tmp_g, path->next->data, path->data);
-					path = path->next;
-				}
-				path_count++;
-				printf("\n");
-
-				path = dijkstra_path(tmp_g, tmp1, tmp2);
-
-				if(!path) {
-					l = start;
-					graph_disassemble(tmp_g);
-					ll_disassemble(path);
-					ll_disassemble(head);
-					return false;
-				}
-
-				path_count++;
-				ll_print(path);
-				printf("\n");
-
-				printf("Number of paths found %d\n", path_count);
-
-				graph_disassemble(tmp_g);
-				ll_disassemble(path);
-				ll_disassemble(head);
-			}
-			else if(count == 2){
-				l = start;
-				printf("stuff\n");
-				return true;
-			}
-
-			tmp = tmp->next;
-		}
-		l = l->next;
+	count = graph_node_count(tmp_g);
+	printf("Node Count : %zd\n", count);
+	path = dijkstra_path(tmp_g, (struct device *)from, (struct device *)to);
+	if(!path) {
+		ll_disassemble(path);
+		return false;
 	}
-	l = start;
+
+	ll_print(path);
+	struct llist *head = path;
+	while(path->next) {
+		graph_remove_edge(tmp_g, path->data, path->next->data);
+		graph_remove_edge(tmp_g, path->next->data, path->data);
+		path = path->next;
+	}
+	path_count++;
 	printf("\n");
+
+	path = dijkstra_path(tmp_g, (struct device *)from, (struct device *)to);
+
+	if(!path) {
+		ll_disassemble(path);
+		ll_disassemble(head);
+		return false;
+	}
+
+	path_count++;
+	ll_print(path);
+	printf("\n");
+
+	printf("Number of paths found %d\n", path_count);
+
+	ll_disassemble(path);
+	ll_disassemble(head);
+
 	return true;
 }
 
+/*
 void removing(const graph *g, struct llist *l) 
 {
-	printf("Removing node #:\n");
-	struct llist *path = NULL;
 
-	struct llist *start = l;
-	while(l) {
-		struct llist *tmp = l->next;
-		while(tmp) {
-			const struct device *tmp1 = l->data;
-			const struct device *tmp2 = tmp->data;
-			if(!is_adjacent(g, tmp1, tmp2)) {
-				size_t count = graph_node_count(g);
-				printf("Node Count : %zd\n", count);
-				path = dijkstra_path(g, tmp1, tmp2);
-				graph *tmp_g = graph_copy(g);
-
-				graph_remove_node(tmp_g, l->data);
-				graph_print(tmp_g, print_item);
-				printf("\n");
-				surballes(tmp_g, start);
-
-				graph_disassemble(tmp_g);
-				ll_disassemble(path);
-			}
-			tmp = tmp->next;
-		}
-		l = l->next;
-	}
-	l = start;
 }
+*/
 
 void print_item(const void *data, bool is_node)
 {
