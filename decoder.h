@@ -103,10 +103,9 @@ union gps_header{
 	unsigned char degrees[20];
 };
 
-struct path_numb_ll {
-	const void *data;
-	struct llist *next;
-	int numb;
+struct data {
+	unsigned int id;
+	int count;
 };
 
 
@@ -144,7 +143,7 @@ void something_print(int data, bool is_node);
 
 bool is_adjacent(const graph *g, const struct device *a, const struct device *b);
 
-void removing(graph *g, struct llist *l);
+struct llist *removing(graph *g, struct llist *l);
 
 bool is_vendor_recommended(graph *g, struct llist *l);
 
