@@ -359,6 +359,7 @@ bool is_vendor_recommended(graph *g, struct llist *l)
 				printf("valid\n");
 			}
 			else {
+				graph_disassemble(tmp_g);
 				return false;
 			}
 			tmp = tmp->next;
@@ -379,20 +380,26 @@ struct llist *removing(graph *g, struct llist *l)
 
 	struct data *data = make_data();
 
+	struct llist *tracker = NULL;
+
 	while(l) {
 		struct llist *tmp = l->next;
 		while(tmp) {
 			const struct device *tmp1 = l->data;
 			const struct device *tmp2 = tmp->data;
 			graph *tmp_g = graph_copy(g);
-			if(surballes(tmp_g, tmp1, tmp2)) {
+			if(is_adjacent(tmp_g, tmp1, tmp2)) {
+				printf("valid\n");
+			}
+			else if(surballes(tmp_g, tmp1, tmp2)) {
 				data->id = tmp1->source_dev_id;
 				data->count = data->count + 1;
 				if(remove_count) {
 					ll_add(&remove_count, data);
 				}
 				else {
-					remove_count = ll_create(data);				
+					remove_count = ll_create(data);
+					tracker = remove_count;			
 				}	
 			}
 			tmp = tmp->next;
@@ -403,7 +410,7 @@ struct llist *removing(graph *g, struct llist *l)
 			remove_count = remove_count->next;
 		}
 	}
-
+	remove_count = tracker;
 	l = test;
 	free(data);
 	return remove_count;
