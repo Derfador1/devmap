@@ -103,6 +103,12 @@ union gps_header{
 	unsigned char degrees[20];
 };
 
+struct path_numb_ll {
+	const void *data;
+	struct llist *next;
+	int numb;
+};
+
 
 int bit_seperation(struct meditrik *medi, unsigned char *buf, unsigned int *type_pt, unsigned int *total_length, int *start);
 
@@ -130,7 +136,7 @@ void ll_print(struct llist *test);
 
 graph *ll_to_graph(graph *g, struct llist *l);
 
-bool surballes(graph *g, struct llist *l);
+bool surballes(graph *g, const void *from, const void *to);
 
 double haversine(double lat1, double lat2, double lon1, double lon2, float alt1, float alt2);
 
@@ -138,6 +144,8 @@ void something_print(int data, bool is_node);
 
 bool is_adjacent(const graph *g, const struct device *a, const struct device *b);
 
-void removing(const graph *g, struct llist *l);
+void removing(graph *g, struct llist *l);
+
+bool is_vendor_recommended(graph *g, struct llist *l);
 
 #endif
