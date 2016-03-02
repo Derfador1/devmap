@@ -298,26 +298,20 @@ bool surballes(graph *g, struct llist *l)
 			const struct device *tmp2 = tmp->data;
 			if(!is_adjacent(g, tmp1, tmp2)) {
 				printf("Is not Adjacent\n");
-				//weight = graph_edge_weight(tmp_g, tmp1, tmp2);
-				//printf("%d : %d - Weight: %lf\n", tmp1->source_dev_id, tmp2->source_dev_id, weight); //doesnt seem right
+				size_t count = graph_node_count(g);
+				printf("Node Count : %zd\n", count);
 				path = dijkstra_path(g, tmp1, tmp2);
 				graph *tmp_g = graph_copy(g);
 				if(path) {
-					path_count++;
 					ll_print(path);
+					while(path->next) {
+						graph_remove_edge(tmp_g, path->data, path->next->data);
+						graph_remove_edge(tmp_g, path->next->data, path->data);
+						path = path->next;
+					}
+					path_count++;
 					printf("\n");
 				}
-
-				graph_remove_edge(tmp_g, tmp1, tmp2);
-				graph_remove_edge(tmp_g, tmp2, tmp1);
-
-				/*
-				while(path->next) {
-					path = path->next;
-					graph_remove_node(tmp_g, path->data);
-				}
-				*/
-
 
 				path2 = dijkstra_path(tmp_g, tmp1, tmp2);
 				if(path2) {
@@ -345,8 +339,6 @@ bool surballes(graph *g, struct llist *l)
 		l = l->next;
 	}
 	printf("\n");
-	size_t count = graph_node_count(g);
-	printf("Node Count : %zd\n", count);
 	return true;
 }
 
