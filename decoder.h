@@ -147,4 +147,6 @@ struct llist *removing(graph *g, struct llist *l);
 
 bool is_vendor_recommended(graph *g, struct llist *l);
 
+struct llist *new_list(struct llist *l);
+
 #endif
