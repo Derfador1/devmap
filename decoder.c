@@ -22,6 +22,15 @@ struct device *make_device(void) //used to initialize meditrik structure when in
 	return device;
 }
 
+struct data *make_data(void) //used to initialize meditrik structure when invoked
+{
+	struct data *data = malloc(sizeof(struct data));
+	if(!data) { //makes sure there is something to malloc
+		return NULL;
+	}
+
+	return data;
+}
 
 struct ipv4 *make_ip(void) //used to initialize meditrik structure when invoked
 {
@@ -343,19 +352,14 @@ bool is_vendor_recommended(graph *g, struct llist *l)
 			graph *tmp_g = graph_copy(g);
 			const struct device *tmp1 = l->data;
 			const struct device *tmp2 = tmp->data;
-			if(!is_adjacent(tmp_g, tmp1, tmp2)) {
-				if(surballes(tmp_g, tmp1, tmp2)) {
-					printf("valid\n");
-				}
-				else {
-					printf("not valid\n");
-					graph_print(tmp_g, print_item);
-					graph_disassemble(tmp_g);
-					return false;
-				}
+			if(is_adjacent(tmp_g, tmp1, tmp2)) {
+				printf("valid\n");
+			}
+			else if(surballes(tmp_g, tmp1, tmp2)) {
+				printf("valid\n");
 			}
 			else {
-				//return true;
+				return false;
 			}
 			tmp = tmp->next;
 			graph_disassemble(tmp_g);
@@ -368,37 +372,41 @@ bool is_vendor_recommended(graph *g, struct llist *l)
 }
 
 
-void removing(graph *g, struct llist *l) 
+struct llist *removing(graph *g, struct llist *l) 
 {
 	struct llist *test = l;
-	graph *tmp_g = graph_copy(g);
-	struct path_numb_ll *numb = malloc(sizeof(struct path_numb_ll));
+	struct llist *remove_count = NULL;
 
-	int number = 0;
+	struct data *data = make_data();
 
 	while(l) {
 		struct llist *tmp = l->next;
 		while(tmp) {
 			const struct device *tmp1 = l->data;
 			const struct device *tmp2 = tmp->data;
-
+			graph *tmp_g = graph_copy(g);
 			if(surballes(tmp_g, tmp1, tmp2)) {
-				numb->numb = number++;
-				printf("%d : %d Number %d\n", tmp1->source_dev_id, tmp2->source_dev_id, number);
-				number = 0;
-			}
-			else {
-				printf("%d : %d Number %d\n", tmp1->source_dev_id, tmp2->source_dev_id, number);
-				graph_remove_node(tmp_g, tmp1);
+				data->id = tmp1->source_dev_id;
+				data->count = data->count + 1;
+				if(remove_count) {
+					ll_add(&remove_count, data);
+				}
+				else {
+					remove_count = ll_create(data);				
+				}	
 			}
 			tmp = tmp->next;
+			graph_disassemble(tmp_g);
 		}
 		l = l->next;
+		if(remove_count) {
+			remove_count = remove_count->next;
+		}
 	}
 
 	l = test;
-	graph_disassemble(tmp_g);
-	free(numb);
+	free(data);
+	return remove_count;
 }
 
 void print_item(const void *data, bool is_node)
