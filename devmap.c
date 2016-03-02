@@ -97,7 +97,7 @@ void parse_args(int argc, char *argv[], int *tmp_file_count, double *battery_lif
 
 	if (argc < 1) {
 		fprintf(stderr, "Error: At least one file argument must be provided.\n");
-		fprintf(stderr, "Usage: %s -p <file.pcap>\n", program);
+		fprintf(stderr, "Usage: %s <file.pcap>\n", program);
 		exit(0);
 	}
 
