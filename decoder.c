@@ -49,6 +49,7 @@ void ll_print(struct llist *test)
 	while(tmp) {
 		const struct device *data = tmp->data;
 		printf(u8"%d → ", data->source_dev_id);
+		//printf(u8"%d → ", data->count);
 		//printf("Battery Power %.02lf%%\n", data->battery_power);
 		tmp = tmp->next;
 	}
@@ -372,15 +373,42 @@ bool is_vendor_recommended(graph *g, struct llist *l)
 	return true;
 }
 
-
-struct llist *removing(graph *g, struct llist *l) 
+struct llist *new_list(struct llist *l)
 {
-	struct llist *test = l;
+	struct llist *tracker2 = l;
+	struct llist *tracker = NULL;
 	struct llist *remove_count = NULL;
 
 	struct data *data = make_data();
 
-	struct llist *tracker = NULL;
+	while(l) {
+		const struct device *tmp1 = l->data;
+		data->id = tmp1->source_dev_id;
+		data->count = 0;
+
+		if(remove_count) {
+			ll_add(&remove_count, data);
+		}
+		else {
+			remove_count = ll_create(data);
+			tracker = remove_count;
+		}
+
+		l = l->next;
+		remove_count = remove_count->next;
+
+		printf("Um:%d\n", data->id);
+	}
+	l = tracker2;
+	remove_count = tracker;
+	//free(data);
+	return remove_count;
+	
+}
+
+struct llist *removing(graph *g, struct llist *l) 
+{
+	struct llist *test = l;
 
 	while(l) {
 		struct llist *tmp = l->next;
@@ -392,28 +420,16 @@ struct llist *removing(graph *g, struct llist *l)
 				printf("valid\n");
 			}
 			else if(surballes(tmp_g, tmp1, tmp2)) {
-				data->id = tmp1->source_dev_id;
-				data->count = data->count + 1;
-				if(remove_count) {
-					ll_add(&remove_count, data);
-				}
-				else {
-					remove_count = ll_create(data);
-					tracker = remove_count;			
-				}	
+				//increment count	
 			}
 			tmp = tmp->next;
 			graph_disassemble(tmp_g);
 		}
 		l = l->next;
-		if(remove_count) {
-			remove_count = remove_count->next;
-		}
 	}
-	remove_count = tracker;
+
 	l = test;
-	free(data);
-	return remove_count;
+	return l;
 }
 
 void print_item(const void *data, bool is_node)
