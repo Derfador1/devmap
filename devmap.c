@@ -44,7 +44,8 @@ int main(int argc, char *argv[])
 	}
 	else {
 		printf("\nattempt removing\n");
-		removing(final_g, final_ll);
+		struct llist *first = removing(final_g, final_ll);
+		ll_destroy(first);
 	}
 
 	printf("\n");
