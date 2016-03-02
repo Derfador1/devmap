@@ -39,37 +39,17 @@ int main(int argc, char *argv[])
 	graph_print(final_g, print_item);
 	printf("\n");
 
-	struct llist *test = final_ll;
-
-	while(final_ll) {
-		struct llist *tmp = final_ll->next;
-		while(tmp) {
-			graph *tmp_g = graph_copy(final_g);
-			const struct device *tmp1 = final_ll->data;
-			const struct device *tmp2 = tmp->data;
-			if(!is_adjacent(tmp_g, tmp1, tmp2)) {
-				if(surballes(tmp_g, tmp1, tmp2)) {
-					printf("valid\n");
-				}
-				else {
-					printf("attemtping to remove\n");
-				}
-			}
-			else {
-				printf("adjacent\n");
-			}
-			tmp = tmp->next;
-			graph_disassemble(tmp_g);
-		}
-		final_ll = final_ll->next;
+	if(is_vendor_recommended(final_g, final_ll)) {
+		printf("Network satisfies vendor recommendations\n");
 	}
-	
-	final_ll = test;
+	else {
+		printf("\nattempt removing\n");
+		removing(final_g, final_ll);
+	}
 
 	printf("\n");
 
 	ll_destroy(final_ll);
-	//ll_disassemble(test);
 	graph_disassemble(final_g);
 }
 
