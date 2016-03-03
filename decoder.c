@@ -433,6 +433,23 @@ struct llist *count(graph *g, struct llist *l)
 	return l;
 }
 
+struct llist *remover(struct llist **l)
+{
+	struct llist *track = *l;
+	struct llist *tmp;
+	if(track->next == NULL || track == NULL) {
+		return NULL;
+	}
+
+	tmp = track->next;
+	track->data = tmp->data;
+	track->next = tmp->next;
+	free(tmp);
+
+	*l = track;
+	return *l;
+}
+
 bool removing(graph *g, struct llist *l) 
 {
 	struct llist *tracker = l;
@@ -450,20 +467,23 @@ bool removing(graph *g, struct llist *l)
 		graph *tmp_g = graph_copy(g);
 		if(tmp1->source_dev_id == min) {
 			graph_remove_node(tmp_g, tmp1);
-			if(is_vendor_recommended(tmp_g, l)) {
+			if(is_vendor_recommended(tmp_g, tracker)) {
 				l = tracker;
 				graph_disassemble(tmp_g);
 				return true;
 			}
-
-			printf("removing node\n");
-			ll_remove(&l);
-			count_ll = count(tmp_g, l);
-			printf("reset\n");
-			ll_test(count_ll);
-			min = find_min(l);
-			printf("MIN: %d\n", min);
-			
+			else {
+				printf("removing node\n");
+				count_ll = count(tmp_g, tracker);
+				printf("reset\n");
+				ll_test(count_ll);
+				l = tracker;
+				struct llist *tmp = remover(&l);
+				printf("tmp\n");
+				ll_test(tmp);
+				min = find_min(tmp); //i need to kill that node of l
+				printf("MIN: %d\n", min);
+			}
 		}
 
 		l = l->next;
