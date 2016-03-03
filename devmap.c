@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
 	else {
 		printf("\nattempt removing\n");
 
-		if(removing(final_g, final_ll)) {
+		if(!removing(final_g, final_ll)) {
 			printf("Network satisfies vendor recommendations\n");
 		}
 		else {
