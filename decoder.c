@@ -413,7 +413,7 @@ struct llist *count(graph *g, struct llist *l)
 {
 	struct llist *test = l;
 
-	//count_reseter(l);
+	count_reseter(test);
 
 	while(l) {
 		struct llist *tmp = l->next;
@@ -436,6 +436,7 @@ struct llist *count(graph *g, struct llist *l)
 	}
 
 	l = test;
+
 	return l;
 }
 
@@ -450,8 +451,14 @@ void remover(struct llist **l, const void *data)
 			*head = (*head)->next;
 			free(to_free);
 		}
+
+		if(!(*head)->next) {
+			printf("returning\n");
+			return;
+		}
+
 		head = &((*head)->next);
-		printf("%p\n", head);
+		printf("stuff %p\n", head);
 	}
 }
 
@@ -460,8 +467,6 @@ bool removing(graph *g, struct llist *l)
 	struct llist *tracker = l;
 
 	struct llist *count_ll = count(g, l);
-	printf("first\n");
-	ll_test(count_ll);
 
 	unsigned int min = find_min(l);
 
@@ -478,14 +483,19 @@ bool removing(graph *g, struct llist *l)
 				return true;
 			}
 			else {
-				remover(&tracker, tmp1);
-				printf("removing node\n");
+				bool double_head = tracker == l;
+				printf("removing node in ll\n");
+				//remover(&tracker, tmp1);
 				count_ll = count(tmp_g, tracker);
 				printf("reset\n");
 				ll_test(count_ll);
-				//ll_test(l);
-				//min = find_min(tmp); //i need to kill that node of l
-				//printf("MIN: %d\n", min);
+				min = find_min(tracker); //i need to kill that node of l
+				printf("MIN: %d\n", min);
+
+				if(double_head) {
+					l = tracker;
+					continue;
+				}
 			}
 		}
 
