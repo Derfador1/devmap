@@ -148,4 +148,6 @@ unsigned int find_min(struct llist *l);
 
 struct llist *count(graph *g, struct llist *l);
 
+struct llist *remover(struct llist **l);
+
 #endif
