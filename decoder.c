@@ -315,7 +315,9 @@ bool surballes(graph *tmp_g, const void *from, const void *to)
 	}
 
 	struct llist *head = path;
+	path = path->next;
 	while(path->next) {
+		graph_remove_node(sur_tmp, from);
 		graph_remove_edge(sur_tmp, path->data, path->next->data);
 		graph_remove_edge(sur_tmp, path->next->data, path->data);
 		path = path->next;
