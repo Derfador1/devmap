@@ -151,4 +151,6 @@ struct llist *new_list(struct llist *l);
 
 void ll_test(struct llist *test);
 
+int find_min(struct llist *l);
+
 #endif
