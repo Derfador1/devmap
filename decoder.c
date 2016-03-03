@@ -344,6 +344,11 @@ bool surballes(graph *tmp_g, const void *from, const void *to)
 
 bool is_vendor_recommended(graph *g, struct llist *l)
 {
+	if(graph_node_count(g) == 2) {
+		printf("true\n");
+		return true;
+	}
+
 	struct llist *test = l;
 
 	while(l) {
@@ -359,9 +364,10 @@ bool is_vendor_recommended(graph *g, struct llist *l)
 				printf("valid surballes\n");
 			}
 			else {
-				graph_disassemble(tmp_g);
-				return false;
+				printf("returning false\n");
+				return false; //this is the fucking problem! I dont need it to print false
 			}
+
 			tmp = tmp->next;
 			graph_disassemble(tmp_g);
 		}
@@ -374,8 +380,6 @@ bool is_vendor_recommended(graph *g, struct llist *l)
 
 unsigned int find_min(struct llist *l)
 {
-	//return source id
-	//int min = 0;
 	int max = 0;
 
 	struct llist *test = l;
@@ -388,7 +392,7 @@ unsigned int find_min(struct llist *l)
 		if(tmp1->count > max) {
 			max = tmp1->count;
 		}
-		else if(tmp1->count < max) {
+		else if(tmp1->count <= max) {
 			source_id = tmp1->source_dev_id;
 		}
 
@@ -401,7 +405,6 @@ unsigned int find_min(struct llist *l)
 
 void count_reseter(struct llist *l)
 {
-	//struct llist *l = 
 	while(l) {
 		struct device *tmp1 = (struct device *)l->data;
 		tmp1->count = 0;
@@ -445,20 +448,17 @@ void remover(struct llist **l, const void *data)
 	struct llist **head;
 	head = l;
 	while(*head) {
-		printf("%p : %p\n", *head, (*head)->next);
 		if((*head)->data == data) {
 			void *to_free = *head;
 			*head = (*head)->next;
 			free(to_free);
 		}
 
-		if(!(*head)->next) {
-			printf("returning\n");
+		if(!*head) {
 			return;
 		}
 
 		head = &((*head)->next);
-		printf("stuff %p\n", head);
 	}
 }
 
@@ -466,7 +466,7 @@ bool removing(graph *g, struct llist *l)
 {
 	struct llist *tracker = l;
 
-	struct llist *count_ll = count(g, l);
+	struct llist *count_ll = count(g, l); //warning at this line
 
 	unsigned int min = find_min(l);
 
@@ -477,25 +477,24 @@ bool removing(graph *g, struct llist *l)
 		graph *tmp_g = graph_copy(g);
 		if(tmp1->source_dev_id == min) {
 			graph_remove_node(tmp_g, tmp1);
+
 			if(is_vendor_recommended(tmp_g, tracker)) {
-				l = tracker;
 				graph_disassemble(tmp_g);
 				return true;
 			}
-			else {
-				bool double_head = tracker == l;
-				printf("removing node in ll\n");
-				//remover(&tracker, tmp1);
-				count_ll = count(tmp_g, tracker);
-				printf("reset\n");
-				ll_test(count_ll);
-				min = find_min(tracker); //i need to kill that node of l
-				printf("MIN: %d\n", min);
 
-				if(double_head) {
-					l = tracker;
-					continue;
-				}
+
+			bool double_head = tracker == l;
+			printf("removing node in ll\n");
+			remover(&tracker, tmp1);
+			count_ll = count(tmp_g, tracker);
+
+			min = find_min(tracker);
+			printf("MIN: %d\n", min);
+
+			if(double_head) {
+				l = tracker;
+				continue;
 			}
 		}
 
@@ -503,7 +502,6 @@ bool removing(graph *g, struct llist *l)
 		graph_disassemble(tmp_g);
 	}
 
-	l = tracker;
 	return false;
 }
 
