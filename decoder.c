@@ -378,7 +378,7 @@ unsigned int find_min(struct llist *l)
 	//int min = 0;
 	int max = 0;
 
-	struct llist *tracker = l;
+	struct llist *test = l;
 
 	unsigned int source_id = 0;
 	
@@ -395,13 +395,19 @@ unsigned int find_min(struct llist *l)
 		l = l->next;
 	}
 
-	l = tracker;
+	l = test;
 	return source_id;
 }
 
-bool removing(graph *g, struct llist *l) 
+struct llist *count(graph *g, struct llist *l)
 {
 	struct llist *test = l;
+
+	struct device *reseter = (struct device *)l->data;
+	struct device *reseter_nxt = (struct device *)l->next->data;
+
+	reseter->count = 0;
+	reseter_nxt->count = 0;
 
 	while(l) {
 		struct llist *tmp = l->next;
@@ -410,12 +416,10 @@ bool removing(graph *g, struct llist *l)
 			struct device *tmp2 = (struct device *)tmp->data;
 			graph *tmp_g = graph_copy(g);
 			if(is_adjacent(tmp_g, tmp1, tmp2)) {
-				printf("valid adjacent removing\n");
 				++(tmp1->count);
 				++(tmp2->count);
 			}
 			else if(surballes(tmp_g, tmp1, tmp2)) {
-				printf("valid surballes removing\n");
 				++(tmp1->count);
 				++(tmp2->count);	
 			}
@@ -425,30 +429,48 @@ bool removing(graph *g, struct llist *l)
 		l = l->next;
 	}
 
-	ll_test(test);
+	l = test;
+	return l;
+}
 
-	unsigned int min = find_min(test);
+bool removing(graph *g, struct llist *l) 
+{
+	struct llist *tracker = l;
+
+	struct llist *count_ll = count(g, l);
+	printf("first\n");
+	ll_test(count_ll);
+
+	unsigned int min = find_min(l);
 
 	printf("MIN: %d\n", min);
 
-	l = test;
 	while(l) {
 		struct device *tmp1 = (struct device *)l->data;
 		graph *tmp_g = graph_copy(g);
 		if(tmp1->source_dev_id == min) {
 			graph_remove_node(tmp_g, tmp1);
-
-			if(is_vendor_recommended(g, l)) {
-				l = test;
+			if(is_vendor_recommended(tmp_g, l)) {
+				l = tracker;
 				graph_disassemble(tmp_g);
 				return true;
 			}
+
+			printf("removing node\n");
+			ll_remove(&l);
+			count_ll = count(tmp_g, l);
+			printf("reset\n");
+			ll_test(count_ll);
+			min = find_min(l);
+			printf("MIN: %d\n", min);
+			
 		}
+
 		l = l->next;
 		graph_disassemble(tmp_g);
 	}
 
-	l = test;
+	l = tracker;
 	return false;
 }
 
