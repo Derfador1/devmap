@@ -103,11 +103,6 @@ union gps_header{
 	unsigned char degrees[20];
 };
 
-struct data {
-	unsigned int id;
-	int count;
-};
-
 
 int bit_seperation(struct meditrik *medi, unsigned char *buf, unsigned int *type_pt, unsigned int *total_length, int *start);
 
@@ -147,10 +142,8 @@ bool removing(graph *g, struct llist *l);
 
 bool is_vendor_recommended(graph *g, struct llist *l);
 
-struct llist *new_list(struct llist *l);
-
 void ll_test(struct llist *test);
 
-int find_min(struct llist *l);
+unsigned int find_min(struct llist *l);
 
 #endif
