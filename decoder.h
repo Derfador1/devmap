@@ -141,12 +141,14 @@ double haversine(double lat1, double lat2, double lon1, double lon2, float alt1,
 
 void something_print(int data, bool is_node);
 
-bool is_adjacent(const graph *g, const struct device *a, const struct device *b);
+bool is_adjacent(const graph *g, const void *a, const void *b);
 
 struct llist *removing(graph *g, struct llist *l);
 
 bool is_vendor_recommended(graph *g, struct llist *l);
 
 struct llist *new_list(struct llist *l);
+
+void ll_test(struct llist *test);
 
 #endif
