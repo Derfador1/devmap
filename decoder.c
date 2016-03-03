@@ -417,6 +417,30 @@ struct llist *new_list(struct llist *l)
 	
 }
 
+int find_min(struct llist *l)
+{
+	int min = 0;
+	int max = 0;
+
+	struct llist *tracker = l;
+	
+	while(l) {
+		struct data *tmp1 = (struct data *)l->data;
+
+		if(tmp1->count > max) {
+			max = tmp1->count;
+		}
+		else if(tmp1->count < max) {
+			max = tmp1->count;
+		}
+
+		l = l->next;
+	}
+
+	l = tracker;
+	return min;
+}
+
 bool removing(graph *g, struct llist *l) 
 {
 	struct llist *test = l;
@@ -427,6 +451,10 @@ bool removing(graph *g, struct llist *l)
 			struct data *tmp1 = (struct data *)l->data;
 			struct data *tmp2 = (struct data *)tmp->data;
 			graph *tmp_g = graph_copy(g);
+			printf("\nGraph print: \n");
+			graph_print(tmp_g, print_item);
+			printf("\n");
+			printf("%d : %d\n", tmp1->id, tmp2->id);
 			if(is_adjacent(tmp_g, tmp1, tmp2)) {
 				printf("valid adjacent removing\n");
 				++(tmp1->count);
@@ -437,15 +465,12 @@ bool removing(graph *g, struct llist *l)
 				++(tmp1->count);
 				++(tmp2->count);	
 			}
-			else {
-				graph_disassemble(tmp_g);
-				return false;
-			}
 			tmp = tmp->next;
 			graph_disassemble(tmp_g);
 		}
 		l = l->next;
 	}
+
 
 	l = test;
 	return true;
