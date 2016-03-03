@@ -146,4 +146,6 @@ void ll_test(struct llist *test);
 
 unsigned int find_min(struct llist *l);
 
+struct llist *count(graph *g, struct llist *l);
+
 #endif
