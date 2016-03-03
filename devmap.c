@@ -57,8 +57,10 @@ int main(int argc, char *argv[])
 		}
 
 		
-		removing(final_g, final_ll);
-		ll_test(final_ll);
+		if(removing(final_g, final_ll)) {
+			printf("Network satisfies vendor recommendations\n");
+		}
+		//ll_test(final_ll);
 	}
 
 	ll_test(final);
