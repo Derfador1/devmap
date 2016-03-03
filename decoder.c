@@ -439,12 +439,10 @@ struct llist *count(graph *g, struct llist *l)
 	return l;
 }
 
-struct llist *remover(struct llist **l, const void *data)
+void remover(struct llist **l, const void *data)
 {
 	struct llist **head;
 	head = l;
-	printf("um %p\n", l);
-	printf("um %p\n", **head);
 	while(*head) {
 		printf("%p : %p\n", *head, (*head)->next);
 		if((*head)->data == data) {
@@ -452,12 +450,9 @@ struct llist *remover(struct llist **l, const void *data)
 			*head = (*head)->next;
 			free(to_free);
 		}
-		head = &(*head)->next;
+		head = &((*head)->next);
 		printf("%p\n", head);
 	}
-
-	l = head;
-	return l;
 }
 
 bool removing(graph *g, struct llist *l) 
@@ -483,7 +478,7 @@ bool removing(graph *g, struct llist *l)
 				return true;
 			}
 			else {
-				struct llist *um = remover(&tracker, tmp1);
+				remover(&tracker, tmp1);
 				printf("removing node\n");
 				count_ll = count(tmp_g, tracker);
 				printf("reset\n");
