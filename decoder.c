@@ -417,22 +417,29 @@ struct llist *new_list(struct llist *l)
 	
 }
 
-struct llist *removing(graph *g, struct llist *l) 
+bool removing(graph *g, struct llist *l) 
 {
 	struct llist *test = l;
 
 	while(l) {
 		struct llist *tmp = l->next;
 		while(tmp) {
-			const struct data *tmp1 = l->data;
-			const struct data *tmp2 = tmp->data;
+			struct data *tmp1 = (struct data *)l->data;
+			struct data *tmp2 = (struct data *)tmp->data;
 			graph *tmp_g = graph_copy(g);
 			if(is_adjacent(tmp_g, tmp1, tmp2)) {
 				printf("valid adjacent removing\n");
-				//++(tmp1->count);
+				++(tmp1->count);
+				++(tmp2->count);
 			}
 			else if(surballes(tmp_g, tmp1, tmp2)) {
-				printf("here\n");	
+				printf("here\n");
+				++(tmp1->count);
+				++(tmp2->count);	
+			}
+			else {
+				graph_disassemble(tmp_g);
+				return false;
 			}
 			tmp = tmp->next;
 			graph_disassemble(tmp_g);
@@ -441,7 +448,7 @@ struct llist *removing(graph *g, struct llist *l)
 	}
 
 	l = test;
-	return l;
+	return true;
 }
 
 void print_item(const void *data, bool is_node)
