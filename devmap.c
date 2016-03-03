@@ -39,27 +39,30 @@ int main(int argc, char *argv[])
 	graph_print(final_g, print_item);
 	printf("\n");
 
-	//struct llist *final = NULL;
+	struct llist *final = NULL;
+	struct llist *stuff = NULL;
 
 	if(is_vendor_recommended(final_g, final_ll)) {
 		printf("Network satisfies vendor recommendations\n");
 	}
 	else {
 		printf("\nattempt removing\n");
-		struct llist *stuff = new_list(final_ll);
-		/*
+		stuff = new_list(final_ll);
+
 		if(final) {
 			ll_append(final, stuff);
 		}
 		else {
 			final = stuff;
 		}
-		*/
-		//ll_print(stuff);
-		//struct llist *first = removing(final_g, final_ll);
-		//ll_destroy(first);
-		ll_destroy(stuff);
+
+		
+		removing(final_g, final_ll);
+		ll_test(final_ll);
 	}
+
+	ll_test(final);
+	ll_destroy(stuff);
 
 	printf("\n");
 
