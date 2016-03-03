@@ -441,8 +441,9 @@ struct llist *count(graph *g, struct llist *l)
 
 struct llist *remover(struct llist **l, const void *data)
 {
-	struct llist **head = l;
-	printf("um %p\n", *l);
+	struct llist **head;
+	head = l;
+	printf("um %p\n", l);
 	printf("um %p\n", **head);
 	while(*head) {
 		printf("%p : %p\n", *head, (*head)->next);
@@ -482,7 +483,6 @@ bool removing(graph *g, struct llist *l)
 				return true;
 			}
 			else {
-				printf("%p\n", &tracker);
 				struct llist *um = remover(&tracker, tmp1);
 				printf("removing node\n");
 				count_ll = count(tmp_g, tracker);
