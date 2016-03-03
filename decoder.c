@@ -399,15 +399,21 @@ unsigned int find_min(struct llist *l)
 	return source_id;
 }
 
+void count_reseter(struct llist *l)
+{
+	//struct llist *l = 
+	while(l) {
+		struct device *tmp1 = (struct device *)l->data;
+		tmp1->count = 0;
+		l = l->next;
+	}
+}
+
 struct llist *count(graph *g, struct llist *l)
 {
 	struct llist *test = l;
 
-	struct device *reseter = (struct device *)l->data;
-	struct device *reseter_nxt = (struct device *)l->next->data;
-
-	reseter->count = 0;
-	reseter_nxt->count = 0;
+	count_reseter(l);
 
 	while(l) {
 		struct llist *tmp = l->next;
@@ -433,42 +439,18 @@ struct llist *count(graph *g, struct llist *l)
 	return l;
 }
 
-struct llist *remover(struct llist **l)
+void remover(struct llist **l, const void *data)
 {
-	struct llist *track = *l;
+	struct llist **head = l; 
 
-	struct llist *tmp = track;
-	struct llist *prev = track;
-	struct llist *next = track->next;
-
-	/*
-	while(tmp) {
-		if(tmp->data == data) {
-			free(tmp);
-			prev = next;
-			*l = track;
-			return *l;
+	while(*head) {
+		if((*head)->data == data) {
+			void *to_free = *head;
+			*head = (*head)->next;
+			free(to_free);
 		}
-
-		prev = tmp; //prev
-		tmp = tmp->next; //current
-		next = tmp->next; //next
+		head = &(*head)->next;
 	}
-	struct llist *track = *l;
-	struct llist *tmp;
-	if(track->next == NULL || track == NULL) {
-		return NULL;
-	}
-
-	tmp = track->next;
-	track->data = tmp->data;
-	track->next = tmp->next;
-	free(tmp);
-
-	*/
-
-	*l = track;
-	return *l;
 }
 
 bool removing(graph *g, struct llist *l) 
@@ -494,16 +476,16 @@ bool removing(graph *g, struct llist *l)
 				return true;
 			}
 			else {
+				ll_test(tracker);
+				remover(&tracker, tmp1);
 				printf("removing node\n");
 				count_ll = count(tmp_g, tracker);
 				printf("reset\n");
 				ll_test(count_ll);
-				l = tracker;
-				struct llist *tmp = remover(&l);
-				printf("tmp\n");
-				ll_test(tmp);
-				min = find_min(tmp); //i need to kill that node of l
-				printf("MIN: %d\n", min);
+				//printf("tmp\n");
+				//ll_test(l);
+				//min = find_min(tmp); //i need to kill that node of l
+				//printf("MIN: %d\n", min);
 			}
 		}
 
