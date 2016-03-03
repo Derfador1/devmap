@@ -436,6 +436,25 @@ struct llist *count(graph *g, struct llist *l)
 struct llist *remover(struct llist **l)
 {
 	struct llist *track = *l;
+
+	struct llist *tmp = track;
+	struct llist *prev = track;
+	struct llist *next = track->next;
+
+	/*
+	while(tmp) {
+		if(tmp->data == data) {
+			free(tmp);
+			prev = next;
+			*l = track;
+			return *l;
+		}
+
+		prev = tmp; //prev
+		tmp = tmp->next; //current
+		next = tmp->next; //next
+	}
+	struct llist *track = *l;
 	struct llist *tmp;
 	if(track->next == NULL || track == NULL) {
 		return NULL;
@@ -445,6 +464,8 @@ struct llist *remover(struct llist **l)
 	track->data = tmp->data;
 	track->next = tmp->next;
 	free(tmp);
+
+	*/
 
 	*l = track;
 	return *l;
