@@ -22,16 +22,6 @@ struct device *make_device(void) //used to initialize meditrik structure when in
 	return device;
 }
 
-struct data *make_data(void) //used to initialize meditrik structure when invoked
-{
-	struct data *data = malloc(sizeof(struct data));
-	if(!data) { //makes sure there is something to malloc
-		return NULL;
-	}
-
-	return data;
-}
-
 struct ipv4 *make_ip(void) //used to initialize meditrik structure when invoked
 {
 	struct ipv4 *ipv4 = malloc(sizeof(struct ipv4));
@@ -61,8 +51,8 @@ void ll_test(struct llist *test)
 	struct llist *tmp = test;
 
 	while(tmp) {
-		const struct data *data = tmp->data;
-		printf(u8"%d → ", data->id);
+		const struct device *data = tmp->data;
+		printf(u8"%d → ", data->source_dev_id);
 		printf(u8"%d → \n", data->count);
 		//printf("Battery Power %.02lf%%\n", data->battery_power);
 		tmp = tmp->next;
@@ -213,6 +203,7 @@ struct llist *extraction(char * argv[])
 		data->latitude = 0;
 		data->longitude = 0;
 		data->altitude = 0;
+		data->count = 0;
 
 		if (field_check(data, type_pt, buf, start, total_length) != 1)
 		{
@@ -313,12 +304,9 @@ bool surballes(graph *tmp_g, const void *from, const void *to)
 {
 	struct llist *path = NULL;
 	int path_count = 0;
-	size_t count = 0;
 
 	graph *sur_tmp = graph_copy(tmp_g);
 
-	count = graph_node_count(sur_tmp);
-	printf("Node Count : %zd\n", count);
 	path = dijkstra_path(sur_tmp, (struct device *)from, (struct device *)to);
 	if(!path) {
 		graph_disassemble(sur_tmp);
@@ -326,7 +314,6 @@ bool surballes(graph *tmp_g, const void *from, const void *to)
 		return false;
 	}
 
-	ll_print(path);
 	struct llist *head = path;
 	while(path->next) {
 		graph_remove_edge(sur_tmp, path->data, path->next->data);
@@ -334,7 +321,6 @@ bool surballes(graph *tmp_g, const void *from, const void *to)
 		path = path->next;
 	}
 	path_count++;
-	printf("\n");
 
 	path = dijkstra_path(sur_tmp, (struct device *)from, (struct device *)to);
 
@@ -346,10 +332,6 @@ bool surballes(graph *tmp_g, const void *from, const void *to)
 	}
 
 	path_count++;
-	ll_print(path);
-	printf("\n");
-
-	printf("Number of paths found %d\n", path_count);
 
 	graph_disassemble(sur_tmp);
 	ll_disassemble(path);
@@ -388,57 +370,31 @@ bool is_vendor_recommended(graph *g, struct llist *l)
 	return true;
 }
 
-struct llist *new_list(struct llist *l)
+unsigned int find_min(struct llist *l)
 {
-	struct llist *remove_count = NULL;
-	struct llist *tracker = l;
-
-	while(l) {
-		struct data *data = make_data();
-		const struct device *tmp1 = l->data;
-		data->id = tmp1->source_dev_id;
-		data->count = 0;
-
-		if(remove_count) {
-			//printf("Um :%d\n", data->id);
-			ll_add(&remove_count, data);
-			//ll_test(remove_count);
-		}
-		else {
-			//printf("Um :%d\n", data->id);
-			remove_count = ll_create(data);
-		}
-
-		l = l->next;
-	}
-
-	l = tracker;
-	return remove_count;
-	
-}
-
-int find_min(struct llist *l)
-{
-	int min = 0;
+	//return source id
+	//int min = 0;
 	int max = 0;
 
 	struct llist *tracker = l;
+
+	unsigned int source_id = 0;
 	
 	while(l) {
-		struct data *tmp1 = (struct data *)l->data;
+		struct device *tmp1 = (struct device *)l->data;
 
 		if(tmp1->count > max) {
 			max = tmp1->count;
 		}
 		else if(tmp1->count < max) {
-			max = tmp1->count;
+			source_id = tmp1->source_dev_id;
 		}
 
 		l = l->next;
 	}
 
 	l = tracker;
-	return min;
+	return source_id;
 }
 
 bool removing(graph *g, struct llist *l) 
@@ -448,20 +404,16 @@ bool removing(graph *g, struct llist *l)
 	while(l) {
 		struct llist *tmp = l->next;
 		while(tmp) {
-			struct data *tmp1 = (struct data *)l->data;
-			struct data *tmp2 = (struct data *)tmp->data;
+			struct device *tmp1 = (struct device *)l->data;
+			struct device *tmp2 = (struct device *)tmp->data;
 			graph *tmp_g = graph_copy(g);
-			printf("\nGraph print: \n");
-			graph_print(tmp_g, print_item);
-			printf("\n");
-			printf("%d : %d\n", tmp1->id, tmp2->id);
 			if(is_adjacent(tmp_g, tmp1, tmp2)) {
 				printf("valid adjacent removing\n");
 				++(tmp1->count);
 				++(tmp2->count);
 			}
 			else if(surballes(tmp_g, tmp1, tmp2)) {
-				printf("here\n");
+				printf("valid surballes removing\n");
 				++(tmp1->count);
 				++(tmp2->count);	
 			}
@@ -471,9 +423,31 @@ bool removing(graph *g, struct llist *l)
 		l = l->next;
 	}
 
+	ll_test(test);
+
+	unsigned int min = find_min(test);
+
+	printf("MIN: %d\n", min);
 
 	l = test;
-	return true;
+	while(l) {
+		struct device *tmp1 = (struct device *)l->data;
+		graph *tmp_g = graph_copy(g);
+		if(tmp1->source_dev_id == min) {
+			graph_remove_node(tmp_g, tmp1);
+
+			if(is_vendor_recommended(g, l)) {
+				l = test;
+				graph_disassemble(tmp_g);
+				return true;
+			}
+		}
+		l = l->next;
+		graph_disassemble(tmp_g);
+	}
+
+	l = test;
+	return false;
 }
 
 void print_item(const void *data, bool is_node)
