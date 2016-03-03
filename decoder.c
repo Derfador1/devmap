@@ -55,6 +55,21 @@ void ll_print(struct llist *test)
 	}
 }
 
+
+void ll_test(struct llist *test)
+{
+	struct llist *tmp = test;
+
+	while(tmp) {
+		const struct data *data = tmp->data;
+		printf(u8"%d → ", data->id);
+		printf(u8"%d → \n", data->count);
+		//printf("Battery Power %.02lf%%\n", data->battery_power);
+		tmp = tmp->next;
+	}
+}
+
+
 void something_print(int data, bool is_node)
 {
 	if(is_node) {
@@ -65,7 +80,7 @@ void something_print(int data, bool is_node)
 }
 
 
-bool is_adjacent(const graph *g, const struct device *a, const struct device *b)
+bool is_adjacent(const graph *g, const void *a, const void *b)
 {
 	if(!g) {
 		return false;
@@ -354,10 +369,10 @@ bool is_vendor_recommended(graph *g, struct llist *l)
 			const struct device *tmp1 = l->data;
 			const struct device *tmp2 = tmp->data;
 			if(is_adjacent(tmp_g, tmp1, tmp2)) {
-				printf("valid\n");
+				printf("valid adjacent\n");
 			}
 			else if(surballes(tmp_g, tmp1, tmp2)) {
-				printf("valid\n");
+				printf("valid surballes\n");
 			}
 			else {
 				graph_disassemble(tmp_g);
@@ -375,33 +390,29 @@ bool is_vendor_recommended(graph *g, struct llist *l)
 
 struct llist *new_list(struct llist *l)
 {
-	struct llist *tracker2 = l;
-	struct llist *tracker = NULL;
 	struct llist *remove_count = NULL;
-
-	struct data *data = make_data();
+	struct llist *tracker = l;
 
 	while(l) {
+		struct data *data = make_data();
 		const struct device *tmp1 = l->data;
 		data->id = tmp1->source_dev_id;
 		data->count = 0;
 
 		if(remove_count) {
+			//printf("Um :%d\n", data->id);
 			ll_add(&remove_count, data);
+			//ll_test(remove_count);
 		}
 		else {
+			//printf("Um :%d\n", data->id);
 			remove_count = ll_create(data);
-			tracker = remove_count;
 		}
 
 		l = l->next;
-		remove_count = remove_count->next;
-
-		printf("Um:%d\n", data->id);
 	}
-	l = tracker2;
-	remove_count = tracker;
-	//free(data);
+
+	l = tracker;
 	return remove_count;
 	
 }
@@ -413,14 +424,15 @@ struct llist *removing(graph *g, struct llist *l)
 	while(l) {
 		struct llist *tmp = l->next;
 		while(tmp) {
-			const struct device *tmp1 = l->data;
-			const struct device *tmp2 = tmp->data;
+			const struct data *tmp1 = l->data;
+			const struct data *tmp2 = tmp->data;
 			graph *tmp_g = graph_copy(g);
 			if(is_adjacent(tmp_g, tmp1, tmp2)) {
-				printf("valid\n");
+				printf("valid adjacent removing\n");
+				//++(tmp1->count);
 			}
 			else if(surballes(tmp_g, tmp1, tmp2)) {
-				//increment count	
+				printf("here\n");	
 			}
 			tmp = tmp->next;
 			graph_disassemble(tmp_g);
