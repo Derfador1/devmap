@@ -143,7 +143,7 @@ void something_print(int data, bool is_node);
 
 bool is_adjacent(const graph *g, const void *a, const void *b);
 
-struct llist *removing(graph *g, struct llist *l);
+bool removing(graph *g, struct llist *l);
 
 bool is_vendor_recommended(graph *g, struct llist *l);
 
