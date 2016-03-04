@@ -38,18 +38,17 @@ int main(int argc, char *argv[])
 	printf("\nGraph print: \n");
 	graph_print(final_g, print_item);
 	printf("\n");
+	printf("\nDONE: \n");
 
 	if(is_vendor_recommended(final_g, final_ll)) {
 		printf("Network satisfies vendor recommendations\n");
 	}
 	else {
-		printf("\nattempt removing\n");
-
 		if(removing(final_g, final_ll)) {
 			printf("Network satisfies vendor recommendations\n");
 		}
 		else {
-			printf("Cant be made right\n");
+			printf("To many Network alterations needed\n");
 		}
 	}
 
@@ -133,9 +132,8 @@ bool is_vendor_recommended(graph *g, struct llist *l)
 				printf("valid surballes\n");
 			}
 			else {
-				printf("returning false\n");
 				graph_disassemble(tmp_g);
-				return false; //this is the fucking problem! I dont need it to print false
+				return false;
 			}
 
 			tmp = tmp->next;
@@ -148,26 +146,30 @@ bool is_vendor_recommended(graph *g, struct llist *l)
 	return true;
 }
 
-//should attempt to remove all the nodes until only 2 but doesnt
-//something wrong with my is vendor recommended
 bool removing(graph *g, struct llist *l) 
 {
 	graph *tmp_g = graph_copy(g);
+	size_t nodes_removed = 0;
 
 	while(l) {
-
 		count(tmp_g, l);
 		unsigned int min = find_min(l);
 		struct device *to_remove = find_device(l, min);
 		graph_remove_node(tmp_g, to_remove);
+		nodes_removed++;
 		remover(&l, to_remove);
+
+		if(nodes_removed > (graph_node_count(g)/2)) {
+			graph_disassemble(tmp_g);
+			return false;
+		}
 
 		if(is_vendor_recommended(tmp_g, l)) {
 			graph_disassemble(tmp_g);
+			//create a llist to hold the nodes and print right before i return true in
+			//then destroy
 			return true;
 		}
-
-	//	l = l->next;
 
 	}
 
@@ -178,16 +180,20 @@ bool removing(graph *g, struct llist *l)
 
 struct device *find_device(struct llist *l, unsigned int min)
 {
+	struct device *tmp1 = NULL;
 	while(l) {
-		struct device *tmp1 = (struct device *)l->data;
+		tmp1 = (struct device *)l->data;
 
 		if(tmp1->source_dev_id == min) {
-			printf("id %d\n", tmp1->source_dev_id);
-			return tmp1;
+			goto FOUND;
 		}
 		
 		l = l->next;		
 	}
+
+FOUND:
+	return tmp1;
+	
 }
 
 //this code was taken from http://stackoverflow.com/questions/26446308/issues-with-a-result-from-calculating-latitude-longitude-from-haversine-formula
