@@ -12,6 +12,7 @@
 #include "dijkstra.h"
 #include "graph/graph.h"
 #include "device.h"
+#include "devmap.h"
 #define SIZE 1500
 #define EARTH_RAD 6378
 
@@ -122,34 +123,6 @@ int udp_check(int *start, unsigned char *buf);
 
 struct llist *extraction(char * argv[]);
 
-void print_item(const void *data, bool is_node);
-
-void print_path(const struct llist *path);
-
-void ll_print(struct llist *test);
-
-graph *ll_to_graph(graph *g, struct llist *l);
-
-bool surballes(graph *g, const void *from, const void *to);
-
-double haversine(double lat1, double lat2, double lon1, double lon2, float alt1, float alt2);
-
 void something_print(int data, bool is_node);
-
-bool is_adjacent(const graph *g, const void *a, const void *b);
-
-bool removing(graph *g, struct llist *l);
-
-bool is_vendor_recommended(graph *g, struct llist *l);
-
-void ll_test(struct llist *test);
-
-unsigned int find_min(struct llist *l);
-
-struct llist *count(graph *g, struct llist *l);
-
-void remover(struct llist **l, const void *data);
-
-void count_reseter(struct llist *l);
 
 #endif
