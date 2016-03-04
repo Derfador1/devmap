@@ -9,5 +9,6 @@ bool removing(graph *g, struct llist *l);
 double haversine(double lat1, double lat2, double lon1, double lon2, float alt1, float alt2);
 graph *ll_to_graph(graph *g, struct llist *l);
 struct llist *count(graph *g, struct llist *l);
+struct device *find_device(struct llist *l, unsigned int min);
 
 #endif
