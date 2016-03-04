@@ -163,16 +163,12 @@ FOUND:
 //something wrong ith surballes as well with no solution one
 bool surballes(graph *tmp_g, const void *from, const void *to) 
 {
-	printf("%p : %p\n", from, to);
 	struct llist *path = NULL;
 	int path_count = 0;
 
 	graph *sur_tmp = graph_copy(tmp_g);
 
 	path = dijkstra_path(sur_tmp, (struct device *)from, (struct device *)to);
-	
-	ll_print(path);
-	printf("\n");
 
 	if(!path) {
 		graph_disassemble(sur_tmp);
@@ -183,7 +179,7 @@ bool surballes(graph *tmp_g, const void *from, const void *to)
 	struct llist *head = path;
 	path = path->next;
 	while(path && path->next) {
-		graph_remove_node(sur_tmp, path);
+		graph_remove_node(sur_tmp, path->data);
 		graph_remove_edge(sur_tmp, path->data, path->next->data);
 		graph_remove_edge(sur_tmp, path->next->data, path->data);
 		path = path->next;
@@ -192,11 +188,7 @@ bool surballes(graph *tmp_g, const void *from, const void *to)
 
 	path = dijkstra_path(sur_tmp, (struct device *)from, (struct device *)to);
 
-	ll_print(path);
-	printf("\n");
-
 	if(!path) {
-		printf("not return false\n");
 		graph_disassemble(sur_tmp);
 		ll_disassemble(path);
 		ll_disassemble(head);
