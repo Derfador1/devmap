@@ -39,11 +39,13 @@ int main(int argc, char *argv[])
 	graph_print(final_g, print_item);
 	printf("\n");
 
-	if(is_vendor_recommended(final_g, final_ll)) {
+	graph *final_tmp = graph_copy(final_g);
+
+	if(is_vendor_recommended(final_tmp, final_ll)) {
 		printf("Network satisfies vendor recommendations\n");
 	}
 	else {
-		if(removing(final_g, final_ll)) {
+		if(removing(final_tmp, final_ll)) {
 			printf("Network satisfies vendor recommendations\n");
 		}
 		else {
@@ -51,11 +53,17 @@ int main(int argc, char *argv[])
 		}
 	}
 
+	printf("Low Battery (%lf) :\n", battery_life);
+	grab_battery(final_g, battery_life);
+
 	printf("\n");
 
 	ll_destroy(final_ll);
+	graph_disassemble(final_tmp);
 	graph_disassemble(final_g);
 }
+
+
 
 void parse_args(int argc, char *argv[], int *tmp_file_count, double *battery_life)
 {
@@ -113,6 +121,25 @@ void parse_args(int argc, char *argv[], int *tmp_file_count, double *battery_lif
 	}
 }
 
+void grab_battery(graph *g, double battery)
+{
+	if(!g) {
+		return;
+	}
+
+	struct node *curr = g->nodes;
+	while(curr) {
+		print_battery(curr->data, battery);
+		curr = curr->next;
+	}
+}
+
+void print_battery(struct device *data, double battery)
+{
+	if(data->battery_power == battery) {
+		printf("Device #%d\n", data->source_dev_id);
+	}
+}
 
 bool is_vendor_recommended(graph *g, struct llist *l)
 {
@@ -162,8 +189,6 @@ bool removing(graph *g, struct llist *l)
 		count(tmp_g, l);
 		unsigned int min = find_min(l);
 		struct device *to_remove = find_device(l, min);
-
-
 
 		if(print_list) {
 			ll_add(&print_list, to_remove);
