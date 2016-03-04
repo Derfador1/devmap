@@ -18,14 +18,17 @@ int main(int argc, char *argv[])
 	parse_args(argc, argv, tmp_file_count, &battery_life);
 
 	struct llist *final_ll = NULL;
+	struct llist *tracker_ll = NULL;
 
 	while(file_count < argc) {
 		struct llist *test = extraction(&argv[file_count - 1]);
-		if(final_ll) {
+		if(final_ll && tracker_ll) {
 			ll_append(final_ll, test);
+			ll_append(tracker_ll, test);
 		}
 		else {
 			final_ll = test;
+			tracker_ll = test;
 		}
 
 		file_count++;
@@ -54,11 +57,12 @@ int main(int argc, char *argv[])
 	}
 
 	printf("Low Battery (%lf) :\n", battery_life);
-	grab_battery(final_g, battery_life);
+	print_battery(tracker_ll, battery_life);
 
 	printf("\n");
 
 	ll_destroy(final_ll);
+	ll_destroy(tracker_ll);
 	graph_disassemble(final_tmp);
 	graph_disassemble(final_g);
 }
@@ -121,23 +125,17 @@ void parse_args(int argc, char *argv[], int *tmp_file_count, double *battery_lif
 	}
 }
 
-void grab_battery(graph *g, double battery)
+void print_battery(struct llist *l, double battery)
 {
-	if(!g) {
-		return;
-	}
+	struct llist *tmp = l;
 
-	struct node *curr = g->nodes;
-	while(curr) {
-		print_battery(curr->data, battery);
-		curr = curr->next;
-	}
-}
+	while(tmp) {
+		struct device *data = (struct device *)l->data;
+		if(data->battery_power <= battery) {
+			printf("Device #%d\n", data->source_dev_id);
+		}
 
-void print_battery(struct device *data, double battery)
-{
-	if(data->battery_power == battery) {
-		printf("Device #%d\n", data->source_dev_id);
+		tmp = tmp->next;
 	}
 }
 
