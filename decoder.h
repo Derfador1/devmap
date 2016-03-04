@@ -117,9 +117,11 @@ int gps_decode(struct device *data, int *start, unsigned char *buf, int counter)
 
 int message_decode(int *start, unsigned char *buf, unsigned int *total_length);
 
-int extract_ver(struct ipv4 *ver, int *start, unsigned char *buf);
+unsigned int extract_ver(struct ipv4 *ver, int *start, unsigned char *buf);
 
-int udp_check(int *start, unsigned char *buf);
+unsigned int extract_file_type(struct global *type, int *start, unsigned char *buf);
+
+unsigned int udp_check(int *start, unsigned char *buf);
 
 struct llist *extraction(char * argv[]);
 
