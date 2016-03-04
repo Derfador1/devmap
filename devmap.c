@@ -38,7 +38,6 @@ int main(int argc, char *argv[])
 	printf("\nGraph print: \n");
 	graph_print(final_g, print_item);
 	printf("\n");
-	printf("\nDONE: \n");
 
 	if(is_vendor_recommended(final_g, final_ll)) {
 		printf("Network satisfies vendor recommendations\n");
@@ -119,6 +118,13 @@ bool is_vendor_recommended(graph *g, struct llist *l)
 {
 	struct llist *test = l;
 
+	if(graph_node_count(g) == 1) {
+		return true;
+	}
+	else if(graph_node_count(g) == 0) {
+		return false;
+	}
+
 	while(l) {
 		struct llist *tmp = l->next;
 		while(tmp) {
@@ -150,11 +156,21 @@ bool removing(graph *g, struct llist *l)
 {
 	graph *tmp_g = graph_copy(g);
 	size_t nodes_removed = 0;
+	struct llist *print_list = NULL;
 
 	while(l) {
 		count(tmp_g, l);
 		unsigned int min = find_min(l);
 		struct device *to_remove = find_device(l, min);
+
+		if(print_list) {
+			ll_add(&print_list, to_remove);
+		}
+		else {
+			print_list = ll_create(to_remove);
+		}
+
+
 		graph_remove_node(tmp_g, to_remove);
 		nodes_removed++;
 		remover(&l, to_remove);
@@ -166,8 +182,8 @@ bool removing(graph *g, struct llist *l)
 
 		if(is_vendor_recommended(tmp_g, l)) {
 			graph_disassemble(tmp_g);
-			//create a llist to hold the nodes and print right before i return true in
-			//then destroy
+			ll_print_dev(print_list);
+			ll_disassemble(print_list);
 			return true;
 		}
 
