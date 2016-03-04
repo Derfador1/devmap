@@ -163,6 +163,8 @@ bool removing(graph *g, struct llist *l)
 		unsigned int min = find_min(l);
 		struct device *to_remove = find_device(l, min);
 
+
+
 		if(print_list) {
 			ll_add(&print_list, to_remove);
 		}
@@ -183,7 +185,7 @@ bool removing(graph *g, struct llist *l)
 		if(is_vendor_recommended(tmp_g, l)) {
 			graph_disassemble(tmp_g);
 			ll_print_dev(print_list);
-			ll_disassemble(print_list);
+			ll_destroy(print_list);
 			return true;
 		}
 
