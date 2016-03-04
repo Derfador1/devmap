@@ -118,11 +118,6 @@ void parse_args(int argc, char *argv[], int *tmp_file_count, double *battery_lif
 
 bool is_vendor_recommended(graph *g, struct llist *l)
 {
-	if(graph_node_count(g) == 2) {
-		printf("true\n");
-		return true;
-	}
-
 	struct llist *test = l;
 
 	while(l) {
