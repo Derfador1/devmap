@@ -1,3 +1,6 @@
+#ifndef DIJKSTRA_H
+	#define DIJKSTRA_H
+
 #include "graph/graph.h"
 #include "llist.h"
 #include "hash.h"
@@ -25,3 +28,7 @@ struct pqueue_node *__make_node(const void *data, int priority);
 struct visited_node *__make_vnode(int distance, struct pqueue_node *priority, const void *prev);
 struct llist *dijkstra_path(const graph *g, const void *from, const void *to);
 struct llist *graph_path(const graph *g, const void *from, const void *to);
+bool surballes(graph *g, const void *from, const void *to);
+bool is_adjacent(const graph *g, const void *a, const void *b);
+
+#endif
