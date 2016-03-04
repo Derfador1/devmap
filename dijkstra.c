@@ -159,3 +159,75 @@ FOUND:
 	return path;
 }
 
+
+//something wrong ith surballes as well with no solution one
+bool surballes(graph *tmp_g, const void *from, const void *to) 
+{
+	struct llist *path = NULL;
+	int path_count = 0;
+
+	graph *sur_tmp = graph_copy(tmp_g);
+
+	path = dijkstra_path(sur_tmp, (struct device *)from, (struct device *)to);
+	if(!path) {
+		graph_disassemble(sur_tmp);
+		ll_disassemble(path);
+		return false;
+	}
+
+	struct llist *head = path;
+	path = path->next;
+	while(path && path->next) {
+		graph_remove_node(sur_tmp, path);
+		graph_remove_edge(sur_tmp, path->data, path->next->data);
+		graph_remove_edge(sur_tmp, path->next->data, path->data);
+		path = path->next;
+	}
+	path_count++;
+
+	path = dijkstra_path(sur_tmp, (struct device *)from, (struct device *)to);
+	if(!path) {
+		graph_disassemble(sur_tmp);
+		ll_disassemble(path);
+		ll_disassemble(head);
+		return false;
+	}
+
+	path_count++;
+
+	graph_disassemble(sur_tmp);
+	ll_disassemble(path);
+	ll_disassemble(head);
+
+	return true;
+}
+
+bool is_adjacent(const graph *g, const void *a, const void *b)
+{
+	if(!g) {
+		return false;
+	}
+
+	struct node *map = g->nodes;
+
+	if(!map) {
+		return false;
+	}
+
+	while(map) {
+		if(map->data == a) {
+			struct edge *edges = map->edges;
+
+			while(edges) {
+				if(edges->to->data == b) {
+					return true;
+				}
+				edges = edges->next;
+			}
+			//return false;
+		}
+		map = map->next;
+	}
+
+	return false;
+}
