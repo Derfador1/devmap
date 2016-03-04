@@ -179,12 +179,13 @@ bool removing(graph *g, struct llist *l)
 
 		if(nodes_removed > (graph_node_count(g)/2)) {
 			graph_disassemble(tmp_g);
+			ll_destroy(print_list);
 			return false;
 		}
 
 		if(is_vendor_recommended(tmp_g, l)) {
 			graph_disassemble(tmp_g);
-			ll_print_dev(print_list);
+			ll_removed_dev(print_list);
 			ll_destroy(print_list);
 			return true;
 		}
@@ -192,6 +193,7 @@ bool removing(graph *g, struct llist *l)
 	}
 
 	graph_disassemble(tmp_g);
+	ll_destroy(print_list);
 
 	return false;
 }
