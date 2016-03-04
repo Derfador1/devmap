@@ -152,46 +152,42 @@ bool is_vendor_recommended(graph *g, struct llist *l)
 //something wrong with my is vendor recommended
 bool removing(graph *g, struct llist *l) 
 {
-	struct llist *tracker = l;
-
-	struct llist *count_ll = count(g, l); //warning at this line
-
-	unsigned int min = find_min(l);
-
-	printf("MIN: %d\n", min);
+	graph *tmp_g = graph_copy(g);
 
 	while(l) {
-		struct device *tmp1 = (struct device *)l->data;
-		graph *tmp_g = graph_copy(g);
-		if(tmp1->source_dev_id == min) {
-			graph_remove_node(tmp_g, tmp1);
 
-			bool double_head = tracker == l;
-			printf("removing node in ll\n");
-			remover(&tracker, tmp1);
-			count_ll = count(tmp_g, tracker);
+		count(tmp_g, l);
+		unsigned int min = find_min(l);
+		struct device *to_remove = find_device(l, min);
+		graph_remove_node(tmp_g, to_remove);
+		remover(&l, to_remove);
 
-			min = find_min(tracker);
-			printf("MIN: %d\n", min);
-
-			if(is_vendor_recommended(tmp_g, tracker)) {
-				graph_disassemble(tmp_g);
-				//l = tracker;
-				return true;
-			}
-
-			if(double_head) {
-				l = tracker;
-				continue;
-			}
-
+		if(is_vendor_recommended(tmp_g, l)) {
+			graph_disassemble(tmp_g);
+			return true;
 		}
 
-		l = l->next;
-		graph_disassemble(tmp_g);
+	//	l = l->next;
+
 	}
 
+	graph_disassemble(tmp_g);
+
 	return false;
+}
+
+struct device *find_device(struct llist *l, unsigned int min)
+{
+	while(l) {
+		struct device *tmp1 = (struct device *)l->data;
+
+		if(tmp1->source_dev_id == min) {
+			printf("id %d\n", tmp1->source_dev_id);
+			return tmp1;
+		}
+		
+		l = l->next;		
+	}
 }
 
 //this code was taken from http://stackoverflow.com/questions/26446308/issues-with-a-result-from-calculating-latitude-longitude-from-haversine-formula
