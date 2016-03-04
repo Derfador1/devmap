@@ -2,6 +2,16 @@
 #include "graph/graph.h"
 #include <math.h>
 
+struct global *make_global(void) //used to initialize meditrik structure when invoked
+{
+	struct global *global = malloc(sizeof(struct global));
+	if(!global) { //makes sure there is something to malloc
+		return NULL;
+	}
+
+	return global;
+}
+
 struct meditrik *make_meditrik(void) //used to initialize meditrik structure when invoked
 {
 	struct meditrik *meditrik = malloc(sizeof(struct meditrik));
@@ -78,11 +88,13 @@ struct llist *extraction(char * argv[])
 
 	int *start = malloc(sizeof(*start));
 
-	int verse = 0;
+	unsigned int verse = 0;
 
-	int src_port = 0;
+	unsigned int src_port = 0;
 
-	int dst_port = 0;
+	unsigned int dst_port = 0;
+
+	unsigned int magic_num = 0;
 
 	unsigned char *buf = malloc(SIZE);
 
@@ -90,7 +102,19 @@ struct llist *extraction(char * argv[])
 
 	count = read(descrip, buf, SIZE); //sets count to integer value returned by read, which is number of things read
 
+	*start = 0;
+
+	struct global *glo = make_global();
+
+	magic_num = extract_file_type(glo, start, buf);
+
+	if(!(magic_num == 3569595041)) { //this is the magic number for the global pcap header
+		return NULL;
+	}
+
 	*start = global_header;
+
+	//check ethernet type
 
 	while(*start < count) {
 		struct meditrik *stuff = make_meditrik(); //make meditrik to malloc space
@@ -155,7 +179,10 @@ struct llist *extraction(char * argv[])
 			data->source_dev_id = stuff->source_device_id;
 
 			if(test) {
-				ll_add(&test, data);
+				//iterate through linked list looking for that source id
+				if(find_device(test, data->source_dev_id)) { //might not work on med_no_solutions
+					ll_add(&test, data);
+				}
 			}
 			else {
 				test = ll_create(data);				
@@ -177,11 +204,30 @@ END:
 	free(type_pt);
 	free(total_length);
 	free(start);
+	free(glo);
 	close(descrip);
 	return test;
 }
 
-int extract_ver(struct ipv4 *ver, int *start, unsigned char *buf)
+
+unsigned int extract_file_type(struct global *type, int *start, unsigned char *buf)
+{
+	unsigned int magic = buf[*start];
+	magic <<= 8;
+	magic += buf[++(*start)];
+	magic <<= 8;
+	magic += buf[++(*start)];
+	magic <<= 8;
+	magic += buf[++(*start)];
+
+	type->magic_number = magic;
+
+	*start -= 3;
+
+	return type->magic_number;
+}
+
+unsigned int extract_ver(struct ipv4 *ver, int *start, unsigned char *buf)
 {
 	unsigned int vers = buf[*start];
 	vers >>= 4;
@@ -189,7 +235,7 @@ int extract_ver(struct ipv4 *ver, int *start, unsigned char *buf)
 	return ver->version;
 }
 
-int udp_check(int *start, unsigned char *buf)
+unsigned int udp_check(int *start, unsigned char *buf)
 {
 	unsigned int port_start = buf[*start];
 	port_start <<= 8;
