@@ -18,17 +18,15 @@ int main(int argc, char *argv[])
 	parse_args(argc, argv, tmp_file_count, &battery_life);
 
 	struct llist *final_ll = NULL;
-	struct llist *tracker_ll = NULL;
+	struct llist *tracker_ll = final_ll;
 
 	while(file_count < argc) {
 		struct llist *test = extraction(&argv[file_count - 1]);
-		if(final_ll && tracker_ll) {
+		if(final_ll) {
 			ll_append(final_ll, test);
-			ll_append(tracker_ll, test);
 		}
 		else {
 			final_ll = test;
-			tracker_ll = test;
 		}
 
 		file_count++;
@@ -56,18 +54,28 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	printf("Low Battery (%lf) :\n", battery_life);
+	printf("Low Battery (%%%.02lf) :\n", battery_life);
 	print_battery(tracker_ll, battery_life);
 
 	printf("\n");
 
 	ll_destroy(final_ll);
-	ll_destroy(tracker_ll);
 	graph_disassemble(final_tmp);
 	graph_disassemble(final_g);
 }
 
+void print_battery(struct llist *l, double battery)
+{
+	while(l) {
+		struct device *data = (struct device *)l->data;
 
+		if(data->battery_power <= battery) {
+			printf("Device #%d\n", data->source_dev_id);
+		} 
+
+		l = l->next;
+	}
+}
 
 void parse_args(int argc, char *argv[], int *tmp_file_count, double *battery_life)
 {
@@ -122,20 +130,6 @@ void parse_args(int argc, char *argv[], int *tmp_file_count, double *battery_lif
 			fprintf(stderr, "ERROR: %s doesn't exist!\n", argv[i]);
 			exit(0);
 		}
-	}
-}
-
-void print_battery(struct llist *l, double battery)
-{
-	struct llist *tmp = l;
-
-	while(tmp) {
-		struct device *data = (struct device *)l->data;
-		if(data->battery_power <= battery) {
-			printf("Device #%d\n", data->source_dev_id);
-		}
-
-		tmp = tmp->next;
 	}
 }
 
