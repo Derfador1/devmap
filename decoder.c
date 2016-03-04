@@ -127,7 +127,7 @@ struct llist *extraction(char * argv[])
 		if(src_port != 57005 || dst_port != 57005) {
 			printf("This is a malformed packet\n");
 			*start = *start + *total_length - medi_header;
-			free(data); //the hell? WHY
+			free(data); 
 			goto END;
 		}
 
@@ -167,9 +167,6 @@ struct llist *extraction(char * argv[])
 			data->longitude = 0;
 			data->altitude = 0;
 		}
-
-		//printf("Count:%d Start:%d\n", count, *start);
-		//printf(" → ");
 
 END:
 		free(stuff);
