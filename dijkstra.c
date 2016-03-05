@@ -159,8 +159,7 @@ FOUND:
 	return path;
 }
 
-
-//something wrong ith surballes as well with no solution one
+//finds 2 valid paths
 bool surballes(graph *tmp_g, const void *from, const void *to) 
 {
 	struct llist *path = NULL;
@@ -168,7 +167,7 @@ bool surballes(graph *tmp_g, const void *from, const void *to)
 
 	graph *sur_tmp = graph_copy(tmp_g);
 
-	path = dijkstra_path(sur_tmp, (struct device *)from, (struct device *)to);
+	path = dijkstra_path(sur_tmp, (struct device *)from, (struct device *)to); //runs dijkstras once
 
 	if(!path) {
 		graph_disassemble(sur_tmp);
@@ -176,6 +175,7 @@ bool surballes(graph *tmp_g, const void *from, const void *to)
 		return false;
 	}
 
+	//removes the edges and the node from the path that was just found
 	struct llist *head = path;
 	path = path->next;
 	while(path && path->next) {
@@ -186,7 +186,7 @@ bool surballes(graph *tmp_g, const void *from, const void *to)
 	}
 	path_count++;
 
-	path = dijkstra_path(sur_tmp, (struct device *)from, (struct device *)to);
+	path = dijkstra_path(sur_tmp, (struct device *)from, (struct device *)to); //runs dijkstras again looking for a second path
 
 	if(!path) {
 		graph_disassemble(sur_tmp);
@@ -204,6 +204,7 @@ bool surballes(graph *tmp_g, const void *from, const void *to)
 	return true;
 }
 
+//used to find out if 2 nodes are adjacent
 bool is_adjacent(const graph *g, const void *a, const void *b)
 {
 	if(!g) {
