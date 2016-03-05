@@ -1,0 +1,25 @@
+.TH devmap 1 "22 February 2016" "version 1.0"
+.SH NAME
+.B Devmap
+devmap - A program used to see if a network is currently vendor recommended
+.SH DESCRIPTION
+The devmap program takes in any number of pcap files with gps and battery information to form a picture of the network. It then checks to see if the network is vendor recommended. If it is not it gives suggestions on how the current network could be made valid or if to many alterations would
+be needed to correct the network.
+.SH OPTIONS
+This file has a -p option which takes in a battery percent. This allows the user of the program to print out 
+all the devices less then or equal to the the specified amount given.
+.SH BUGS
+.B BUG 1
+
+.I The decoding part of the program does not work on all given pcaps. The error is belived to be when message pcaps are given.
+
+.B BUG 2
+.I This version of the code does not check to make sure the packet given is an ethernet packet.
+
+.SH AUTHOR
+Stephen Paradis, I can be contacted at UMBC Training Centers from 8 a.m to 4 p.m 
+
+.I M-F
+
+.SH SEE ALSO
+.B No other current items to see.
