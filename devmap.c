@@ -9,7 +9,7 @@ void parse_args(int argc, char *argv[], int *tmp_file_count, double *battery_lif
 int main(int argc, char *argv[]) 
 {
 	int file_count = 1;
-	double battery_life = 5;
+	double battery_life = 5; //a default value
 
 	int *tmp_file_count;
 
@@ -32,13 +32,8 @@ int main(int argc, char *argv[])
 		file_count++;
 	}
 
-	printf("\n");
-
 	graph *final_g = graph_create();
 	ll_to_graph(final_g, final_ll);
-	printf("\nGraph print: \n");
-	graph_print(final_g, print_item);
-	printf("\n");
 
 	graph *final_tmp = graph_copy(final_g);
 
@@ -46,7 +41,7 @@ int main(int argc, char *argv[])
 		printf("Network satisfies vendor recommendations\n");
 	}
 	else {
-		if(removing(final_tmp, final_ll)) {
+		if(attempt_removal(final_tmp, final_ll)) {
 			printf("Network satisfies vendor recommendations\n");
 		}
 		else {
@@ -77,6 +72,7 @@ void print_battery(struct llist *l, double battery)
 	}
 }
 
+//code to parse through command line arguments to pull out the -p and value
 void parse_args(int argc, char *argv[], int *tmp_file_count, double *battery_life)
 {
 	int c;
@@ -137,6 +133,7 @@ bool is_vendor_recommended(graph *g, struct llist *l)
 {
 	struct llist *test = l;
 
+	//1 node is true and 0 nodes is false by default
 	if(graph_node_count(g) == 1) {
 		return true;
 	}
@@ -151,12 +148,11 @@ bool is_vendor_recommended(graph *g, struct llist *l)
 			const struct device *tmp1 = l->data;
 			const struct device *tmp2 = tmp->data;
 			if(is_adjacent(tmp_g, tmp1, tmp2)) {
-				printf("valid adjacent\n");
 			}
 			else if(surballes(tmp_g, tmp1, tmp2)) {
-				printf("valid surballes\n");
 			}
 			else {
+				//if no adjacency or surballes then return false
 				graph_disassemble(tmp_g);
 				return false;
 			}
@@ -171,17 +167,17 @@ bool is_vendor_recommended(graph *g, struct llist *l)
 	return true;
 }
 
-bool removing(graph *g, struct llist *l) 
+bool attempt_removal(graph *g, struct llist *l) 
 {
-	graph *tmp_g = graph_copy(g);
 	size_t nodes_removed = 0;
 	struct llist *print_list = NULL;
 
 	while(l) {
-		count(tmp_g, l);
-		unsigned int min = find_min(l);
-		struct device *to_remove = find_device(l, min);
+		count(g, l); //gives me a count for each node based on the other valid nodes it can reach
+		unsigned int min = find_min(l); //find the min value in the l list
+		struct device *to_remove = find_device(l, min); //stores that source id to remove
 
+		//either creates list of add to it
 		if(print_list) {
 			ll_add(&print_list, to_remove);
 		}
@@ -190,26 +186,25 @@ bool removing(graph *g, struct llist *l)
 		}
 
 
-		graph_remove_node(tmp_g, to_remove);
+		graph_remove_node(g, to_remove);
 		nodes_removed++;
 		remover(&l, to_remove);
 
+
+		//if more then half the of the graph are removed then it cant be fixed
 		if(nodes_removed > (graph_node_count(g)/2)) {
-			graph_disassemble(tmp_g);
 			ll_destroy(print_list);
 			return false;
 		}
 
-		if(is_vendor_recommended(tmp_g, l)) {
-			graph_disassemble(tmp_g);
-			ll_removed_dev(print_list);
+		if(is_vendor_recommended(g, l)) {
+			ll_removed_dev(print_list); //prints the removed device
 			ll_destroy(print_list);
 			return true;
 		}
 
 	}
 
-	graph_disassemble(tmp_g);
 	ll_destroy(print_list);
 
 	return false;
@@ -220,7 +215,7 @@ struct device *find_device(struct llist *l, unsigned int min)
 	struct device *tmp1 = NULL;
 	while(l) {
 		tmp1 = (struct device *)l->data;
-
+		//loops until we find the min device
 		if(tmp1->source_dev_id == min) {
 			goto FOUND;
 		}
@@ -258,6 +253,7 @@ double haversine(double lat1, double lat2, double lon1, double lon2, float alt1,
 	return distance;
 }
 
+//creates a graph based off my linked list
 graph *ll_to_graph(graph *g, struct llist *l)
 {
 	struct llist *tmp = l;
@@ -274,8 +270,7 @@ graph *ll_to_graph(graph *g, struct llist *l)
 			const struct device *tmp1 = l->data;
 			const struct device *tmp2 = tmp->data;
 			result = haversine(tmp1->latitude, tmp2->latitude, tmp1->longitude, tmp2->longitude, tmp1->altitude, tmp2->altitude);
-			if(result > 1.25 && result < 16.4042) {
-				printf("Result: %f\n", result);
+			if(result > 1.25 && result < 16.4042) { //if it is valid in feet then i will add the edges
 				graph_add_edge(g, tmp1, tmp2, result);
 				graph_add_edge(g, tmp2, tmp1, result);
 			}
@@ -283,17 +278,15 @@ graph *ll_to_graph(graph *g, struct llist *l)
 		}
 		l = l->next;
 	}
-	printf("\n");	
-
-	printf("Edgecount: %zu\n", graph_edge_count(g));
 	return g;
 }
 
+//gives me a count based on valid adjacent or surballes nodes
 struct llist *count(graph *g, struct llist *l)
 {
 	struct llist *test = l;
 
-	count_reseter(test);
+	count_reseter(test); //resets count to 0 so it can be calculated again
 
 	while(l) {
 		struct llist *tmp = l->next;
