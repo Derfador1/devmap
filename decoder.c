@@ -2,7 +2,7 @@
 #include "graph/graph.h"
 #include <math.h>
 
-struct global *make_global(void) //used to initialize meditrik structure when invoked
+struct global *make_global(void) //used to initialize global structure when invoked
 {
 	struct global *global = malloc(sizeof(struct global));
 	if(!global) { //makes sure there is something to malloc
@@ -22,7 +22,7 @@ struct meditrik *make_meditrik(void) //used to initialize meditrik structure whe
 	return meditrik;
 }
 
-struct device *make_device(void) //used to initialize meditrik structure when invoked
+struct device *make_device(void) //used to initialize device structure when invoked
 {
 	struct device *device = malloc(sizeof(struct device));
 	if(!device) { //makes sure there is something to malloc
@@ -32,7 +32,7 @@ struct device *make_device(void) //used to initialize meditrik structure when in
 	return device;
 }
 
-struct ipv4 *make_ip(void) //used to initialize meditrik structure when invoked
+struct ipv4 *make_ip(void) //used to initialize ip structure when invoked
 {
 	struct ipv4 *ipv4 = malloc(sizeof(struct ipv4));
 	if(!ipv4) { //makes sure there is something to malloc
@@ -55,8 +55,6 @@ struct llist *extraction(char * argv[])
 {
 	size_t file_count = 1;
 	int descrip = 0;
-
-	printf("\n");
 
 	struct llist *test = NULL;
 
@@ -108,13 +106,11 @@ struct llist *extraction(char * argv[])
 
 	magic_num = extract_file_type(glo, start, buf);
 
-	if(!(magic_num == 3569595041)) { //this is the magic number for the global pcap header
+	if(!(magic_num == 3569595041)) { //this is the magic number for the global pcap header in decimal
 		return NULL;
 	}
 
 	*start = global_header;
-
-	//check ethernet type
 
 	while(*start < count) {
 		struct meditrik *stuff = make_meditrik(); //make meditrik to malloc space
@@ -124,12 +120,10 @@ struct llist *extraction(char * argv[])
 		struct ipv4 *ver = make_ip();
 
 		*start += packet + ethernet;
-		
+
 		verse = extract_ver(ver, start, buf);
 
-		printf("Ip version: %d\n", verse);
-
-		if(verse == 4 ) {
+		if(verse == 4 ) { //decides whether to be ipv4 or ipv6
 			*start += ipv4;
 		}
 		else {
@@ -140,9 +134,6 @@ struct llist *extraction(char * argv[])
 		*start += 2;
 		dst_port = udp_check(start, buf);
 		*start -= 2;
-
-		printf("SRC Port: %d\n", src_port);
-		printf("DST Port: %d\n", dst_port);
 
 		*start += udp;
 
@@ -155,14 +146,7 @@ struct llist *extraction(char * argv[])
 			goto END;
 		}
 
-		/*
-		fprintf(stdout, "Version: %d\n", stuff->version);
-		fprintf(stdout, "Type: %d\n", stuff->type);
-		fprintf(stdout, "Source Device: %d\n", stuff->source_device_id);
-		fprintf(stdout, "Destination Device: %d\n", stuff->dest_device_id);
-		fprintf(stdout, "Sequence: %d\n", stuff->seq_id);
-		*/
-
+		//initializes all values to 0
 		data->battery_power = 0;
 		data->latitude = 0;
 		data->longitude = 0;
@@ -190,6 +174,7 @@ struct llist *extraction(char * argv[])
 		}
 		else {
 			printf("There was not gps data to be found\n");
+			//if there was no gps data then nothing happens
 			data->latitude = 0;
 			data->longitude = 0;
 			data->altitude = 0;
@@ -222,7 +207,7 @@ unsigned int extract_file_type(struct global *type, int *start, unsigned char *b
 
 	type->magic_number = magic;
 
-	*start -= 3;
+	*start -= 3; //sets start back to the beginning 
 
 	return type->magic_number;
 }
@@ -371,7 +356,7 @@ int status_decode(struct device *data, int *start, unsigned char *buf, int count
 
 	data->battery_power = (power.percent * 100);
 
-	printf("Battery_power %.02lf%%\n", data->battery_power);
+	//printf("Battery_power %.02lf%%\n", data->battery_power);
 
 	unsigned int glucose_start = buf[*start]; 
 	glucose_start <<= 8;
@@ -434,12 +419,10 @@ int command_decode(int *start, unsigned char * buf)
 		unsigned int sequence_id = buf[*start]; //used to find seq_param
 		sequence_id <<= 8;
 		sequence_id += buf[++(*start)];	
-		fprintf(stdout, "Seq_param: %d\n", sequence_id);
+		fprintf(stdout, "Seq_param: %d\n", sequence_id);		
 	}
 
 	(*start)++;
-
-	*start = *start;
 
 	return 1;
 }
@@ -455,24 +438,11 @@ int gps_decode(struct device *data, int *start, unsigned char *buf, int counter)
 
 	*start = *start + counter;
 
-	//fprintf(stdout, "Longitude: %.9f degree W\n", gps.fields.longs); //fills longitude, latitude, alt from what was stored
-
-	//fprintf(stdout, "Latitude: %.9f degree N\n", gps.fields.lat);	//in buffer and moves down based on types of the three
-
-	//fprintf(stdout, "Altitude: %f ft\n", gps.fields.alt * 6);
-
 	data->latitude = gps.fields.lat;
 
 	data->longitude = gps.fields.longs;
 
 	data->altitude = (gps.fields.alt * 6);
-	
-	printf("%lf\n", data->latitude);
-	printf("%lf\n", data->longitude);
-	printf("%f\n", data->altitude);
-	//(*start)++; //remove this to make new solutions work with proper byte count
-
-	//*start = *start + 3; //remove + 3
 
 	return 2;
 }
