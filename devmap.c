@@ -50,7 +50,8 @@ int main(int argc, char *argv[])
 	}
 
 	printf("Low Battery (%%%.02lf) :\n", battery_life);
-	print_battery(tracker_ll, battery_life);
+
+	print_battery(final_ll, battery_life);
 
 	printf("\n");
 
@@ -63,8 +64,7 @@ void print_battery(struct llist *l, double battery)
 {
 	while(l) {
 		struct device *data = (struct device *)l->data;
-
-		if(data->battery_power <= battery) {
+		if(data->battery_power <= battery && data->battery_power != 0) {
 			printf("Device #%d\n", data->source_dev_id);
 		} 
 
