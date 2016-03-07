@@ -66,7 +66,7 @@ void print_battery(struct llist *l, double battery)
 {
 	while(l) {
 		struct device *data = (struct device *)l->data;
-		if(data->battery_power <= battery && data->battery_power != 0) {
+		if(data->battery_power <= battery && data->battery_power > .001) {
 			printf("Device #%d\n", data->source_dev_id);
 		} 
 
