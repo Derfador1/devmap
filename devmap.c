@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
 	parse_args(argc, argv, tmp_file_count, &battery_life);
 
 	struct llist *final_ll = NULL;
-	struct llist *tracker_ll = final_ll;
+	struct llist *tracker_ll = NULL;
 
 	while(file_count < argc) {
 		struct llist *test = extraction(&argv[file_count - 1]);
@@ -31,6 +31,8 @@ int main(int argc, char *argv[])
 
 		file_count++;
 	}
+
+	tracker_ll = final_ll;
 
 	graph *final_g = graph_create();
 	ll_to_graph(final_g, final_ll);
@@ -51,7 +53,7 @@ int main(int argc, char *argv[])
 
 	printf("Low Battery (%%%.02lf) :\n", battery_life);
 
-	print_battery(final_ll, battery_life);
+	print_battery(tracker_ll, battery_life);
 
 	printf("\n");
 
