@@ -139,6 +139,12 @@ struct llist *extraction(char * argv[])
 
 		bit_seperation(stuff, buf, type_pt, total_length, start);
 
+		if(src_port != 57005 || dst_port != 57005) {
+			printf("This is a malformed packet\n");
+			*start = *start + *total_length - medi_header;
+			free(data); 
+			goto END;
+		}
 
 		//initializes all values to 0
 		data->battery_power = 0;
@@ -174,9 +180,7 @@ struct llist *extraction(char * argv[])
 			data->altitude = 0;
 		}
 
-
-		//printf("%lf\n", data->battery_power);
-
+END:
 		free(stuff);
 		free(ver);
 	}
